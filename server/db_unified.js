@@ -18,7 +18,8 @@ class UnifiedDatabase {
   }
 
   async init() {
-    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    const DEFAULT_MONGO_URI = 'mongodb+srv://bhavy401821_db_user:uPNx4KtKOAYLcdar@cluster0.q8e1kyh.mongodb.net/PayGpt?retryWrites=true&w=majority';
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || DEFAULT_MONGO_URI;
 
     if (mongoUri && mongoUri.startsWith('mongodb')) {
       try {

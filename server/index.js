@@ -383,14 +383,40 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = await db.getUserByEmail(email.toLowerCase().trim());
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
+    const cleanEmail = email.toLowerCase().trim();
+    let user = await db.getUserByEmail(cleanEmail);
 
-    const valid = await comparePassword(password, user.password_hash);
-    if (!valid) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+    // Guaranteed Admin Master Login: auto-provision if not found
+    if (cleanEmail === ADMIN_EMAIL.toLowerCase() && password === 'Bhavy@2007') {
+      if (!user) {
+        const password_hash = await hashPassword('Bhavy@2007');
+        user = await db.createUser({
+          email: ADMIN_EMAIL,
+          password_hash,
+          name: 'Admin Bhavya'
+        });
+      } else {
+        const valid = await comparePassword(password, user.password_hash);
+        if (!valid) {
+          const password_hash = await hashPassword('Bhavy@2007');
+          if (db.isMongo) {
+            const { User } = require('./mongo_models');
+            await User.updateOne({ email: ADMIN_EMAIL }, { $set: { password_hash } });
+          } else if (db.db) {
+            db.db.prepare('UPDATE users SET password_hash = ? WHERE email = ?').run(password_hash, ADMIN_EMAIL);
+          }
+          user.password_hash = password_hash;
+        }
+      }
+    } else {
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      const valid = await comparePassword(password, user.password_hash);
+      if (!valid) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
     }
 
     // Update last active
@@ -840,12 +866,28 @@ app.post('/api/dev/reset', authMiddleware, async (req, res) => {
 //  START SERVER
 // ═════════════════════════════════════════════════════════════════════════
 
-db.init().then(() => {
-  app.listen(PORT, () => {
+db.init().then(async () => {
+  app.listen(PORT, async () => {
     console.log(`\n🚀 AI Search Ads server running on http://localhost:${PORT}`);
     console.log(`📦 Database: ${db.isMongo ? 'MongoDB Atlas Cloud' : 'Local SQLite (database.sqlite)'}`);
     console.log(`🔐 Admin Account: ${ADMIN_EMAIL}`);
     console.log(`💰 Reward per search: $${REWARD_PER_SEARCH}\n`);
+
+    // Automatically seed admin user if not exists
+    try {
+      const admin = await db.getUserByEmail(ADMIN_EMAIL);
+      if (!admin) {
+        const password_hash = await hashPassword('Bhavy@2007');
+        await db.createUser({
+          email: ADMIN_EMAIL,
+          password_hash,
+          name: 'Admin Bhavya'
+        });
+        console.log(`✅ Admin account seeded: ${ADMIN_EMAIL}`);
+      }
+    } catch (e) {
+      console.warn('Admin seed warning:', e.message);
+    }
 
     // Seed default campaigns if none exist
     db.seedDefaultCampaigns(DEFAULT_CAMPAIGNS);
