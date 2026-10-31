@@ -1,9 +1,8 @@
 {
   "version": 2,
+  "framework": null,
   "outputDirectory": "server/public",
   "cleanUrls": true,
-  "installCommand": "echo 'Skipping install'",
-  "buildCommand": "echo 'Skipping build'",
   "rewrites": [
     {
       "source": "/api/:path*",
