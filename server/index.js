@@ -129,8 +129,8 @@ function sanitizeUser(user) {
 
 // ── Helper: match ad to query ───────────────────────────────────────────
 
-function matchAd(query) {
-  const campaigns = db.getCampaigns();
+async function matchAd(query) {
+  const campaigns = await db.getCampaigns();
   const activeCampaigns = campaigns.filter(c => c.status === 'active');
 
   if (activeCampaigns.length === 0) return null;
@@ -201,7 +201,7 @@ function isValidEmail(email) {
 const ADMIN_EMAIL = 'bhavy4018.21@gmail.com';
 
 // ── Helper: Admin Verification Middleware ────────────────────────────────
-function requireAdmin(req, res, next) {
+async function requireAdmin(req, res, next) {
   const token = req.cookies?.auth_token || (req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.slice(7) : null);
   
   if (!token) {
@@ -213,7 +213,7 @@ function requireAdmin(req, res, next) {
     return res.status(401).json({ error: 'Invalid or expired session.' });
   }
 
-  const user = db.getUserById(decoded.userId);
+  const user = await db.getUserById(decoded.userId);
   if (!user || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
     return res.status(403).json({ error: 'Access denied: You must be signed in as the administrator (bhavy4018.21@gmail.com).' });
   }
@@ -264,13 +264,13 @@ app.post('/api/advertiser/inquiry', async (req, res) => {
 });
 
 // Admin Database Viewer API (Allows secret key OR admin email login)
-app.get('/api/admin/database', (req, res) => {
+app.get('/api/admin/database', async (req, res) => {
   const adminKey = req.headers['x-admin-key'] || req.query.key;
   const SECRET_ADMIN_KEY = process.env.ADMIN_KEY || 'admin123';
   
   // Check if query key matches
   if (adminKey === SECRET_ADMIN_KEY) {
-    return serveDatabaseData(res);
+    return await serveDatabaseData(res);
   }
 
   // Alternatively check if signed in as admin email
@@ -278,9 +278,9 @@ app.get('/api/admin/database', (req, res) => {
   if (token) {
     const decoded = verifyToken(token);
     if (decoded && decoded.userId) {
-      const user = db.getUserById(decoded.userId);
+      const user = await db.getUserById(decoded.userId);
       if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-        return serveDatabaseData(res);
+        return await serveDatabaseData(res);
       }
     }
   }
@@ -290,12 +290,12 @@ app.get('/api/admin/database', (req, res) => {
   });
 });
 
-function serveDatabaseData(res) {
+async function serveDatabaseData(res) {
   try {
-    const users = db.db.prepare('SELECT id, name, email, phone, balance, search_count, lifetime_earnings, created_at FROM users ORDER BY created_at DESC').all();
-    const searches = db.db.prepare('SELECT id, user_id, query, platform, reward, ad_shown, timestamp FROM searches ORDER BY timestamp DESC LIMIT 50').all();
-    const withdrawals = db.db.prepare('SELECT id, user_id, amount, method, account_details, status, requested_at FROM withdrawals ORDER BY requested_at DESC').all();
-    const campaigns = db.getCampaigns();
+    const users = await db.getAllUsers();
+    const searches = await db.getAllSearches(50);
+    const withdrawals = await db.getAllWithdrawals();
+    const campaigns = await db.getCampaigns();
 
     res.json({
       success: true,
@@ -310,14 +310,13 @@ function serveDatabaseData(res) {
 }
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
   try {
-    const usersStmt = db.db.prepare('SELECT COUNT(*) as cnt FROM users');
-    const userCount = usersStmt.get().cnt;
+    const users = await db.getAllUsers();
     res.json({
       status: 'ok',
       timestamp: new Date().toISOString(),
-      userCount
+      userCount: users ? users.length : 0
     });
   } catch (err) {
     res.status(500).json({ error: 'Health check failed', details: err.message });
@@ -341,14 +340,14 @@ app.post('/api/auth/register', async (req, res) => {
     }
 
     // Check if email already exists
-    const existing = db.getUserByEmail(email.toLowerCase().trim());
+    const existing = await db.getUserByEmail(email.toLowerCase().trim());
     if (existing) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
 
     // Create user
     const password_hash = await hashPassword(password);
-    const user = db.createUser({
+    const user = await db.createUser({
       email: email.toLowerCase().trim(),
       password_hash,
       name: name.trim(),
@@ -361,7 +360,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     // Store session
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    db.createSession(user.id, token, expiresAt);
+    await db.createSession(user.id, token, expiresAt);
 
     res.status(201).json({
       success: true,
@@ -384,7 +383,7 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = db.getUserByEmail(email.toLowerCase().trim());
+    const user = await db.getUserByEmail(email.toLowerCase().trim());
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -395,7 +394,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     // Update last active
-    db.updateLastActive(user.id);
+    await db.updateLastActive(user.id);
 
     // Generate token and set cookie
     const token = generateToken(user.id);
@@ -403,7 +402,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     // Store session
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    db.createSession(user.id, token, expiresAt);
+    await db.createSession(user.id, token, expiresAt);
 
     res.json({
       success: true,
@@ -433,18 +432,18 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // Get current user
-app.get('/api/auth/me', optionalAuth, (req, res) => {
+app.get('/api/auth/me', optionalAuth, async (req, res) => {
   try {
     if (!req.user) {
       return res.json({ authenticated: false });
     }
 
-    const user = db.getUserById(req.user.userId);
+    const user = await db.getUserById(req.user.userId);
     if (!user) {
       return res.json({ authenticated: false });
     }
 
-    db.updateLastActive(user.id);
+    await db.updateLastActive(user.id);
 
     res.json({
       authenticated: true,
@@ -461,7 +460,7 @@ app.get('/api/auth/me', optionalAuth, (req, res) => {
 // ═════════════════════════════════════════════════════════════════════════
 
 // Record a search and earn reward
-app.post('/api/search/record', optionalAuth, (req, res) => {
+app.post('/api/search/record', optionalAuth, async (req, res) => {
   try {
     let { query, platform, userId } = req.body;
     
@@ -474,10 +473,10 @@ app.post('/api/search/record', optionalAuth, (req, res) => {
       return res.status(400).json({ error: 'User ID or active session is required' });
     }
 
-    let user = db.getUserById(userId);
+    let user = await db.getUserById(userId);
     // Auto-create guest user if using extension without account yet
     if (!user) {
-      user = db.createUser({
+      user = await db.createUser({
         email: `${userId}@anonymous.local`,
         password_hash: 'anonymous',
         name: 'AI Searcher',
@@ -487,22 +486,22 @@ app.post('/api/search/record', optionalAuth, (req, res) => {
     }
 
     // Match an ad
-    const ad = matchAd(query);
+    const ad = await matchAd(query);
     const adShown = ad ? ad.id : null;
 
     // Increment ad impressions
     if (ad) {
-      db.updateCampaign(ad.id, { impressions: (ad.impressions || 0) + 1 });
+      await db.updateCampaign(ad.id, { impressions: (ad.impressions || 0) + 1 });
     }
 
     // Credit the reward
     const newBalance = user.balance + REWARD_PER_SEARCH;
     const newSearchCount = user.search_count + 1;
     const newLifetimeEarnings = user.lifetime_earnings + REWARD_PER_SEARCH;
-    db.updateUserBalance(userId, newBalance, newSearchCount, newLifetimeEarnings);
+    await db.updateUserBalance(userId, newBalance, newSearchCount, newLifetimeEarnings);
 
     // Record the search
-    db.recordSearch({
+    await db.recordSearch({
       userId,
       query: query || null,
       platform: platform || null,
@@ -511,7 +510,7 @@ app.post('/api/search/record', optionalAuth, (req, res) => {
     });
 
     // Update last active
-    db.updateLastActive(userId);
+    await db.updateLastActive(userId);
 
     // Prepare ad response
     let adResponse = null;
@@ -549,16 +548,16 @@ app.post('/api/search/record', optionalAuth, (req, res) => {
 });
 
 // Sync or fetch user for extension/client
-app.post('/api/user/sync', optionalAuth, (req, res) => {
+app.post('/api/user/sync', optionalAuth, async (req, res) => {
   try {
     let userId = req.user?.userId || req.body?.userId;
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
-    let user = db.getUserById(userId);
+    let user = await db.getUserById(userId);
     if (!user) {
-      user = db.createUser({
+      user = await db.createUser({
         email: `${userId}@anonymous.local`,
         password_hash: 'anonymous',
         name: 'AI Searcher',
@@ -566,8 +565,8 @@ app.post('/api/user/sync', optionalAuth, (req, res) => {
       });
     }
 
-    const searches = db.getSearches(user.id, 20);
-    const withdrawals = db.getWithdrawals(user.id);
+    const searches = await db.getSearches(user.id, 20);
+    const withdrawals = await db.getWithdrawals(user.id);
 
     res.json({
       success: true,
@@ -581,7 +580,7 @@ app.post('/api/user/sync', optionalAuth, (req, res) => {
 });
 
 // Record ad click
-app.post('/api/ad/click', optionalAuth, (req, res) => {
+app.post('/api/ad/click', optionalAuth, async (req, res) => {
   try {
     const { adId } = req.body;
 
@@ -589,12 +588,12 @@ app.post('/api/ad/click', optionalAuth, (req, res) => {
       return res.status(400).json({ error: 'Ad ID is required' });
     }
 
-    const campaign = db.getCampaignById(adId);
+    const campaign = await db.getCampaignById(adId);
     if (!campaign) {
       return res.status(404).json({ error: 'Campaign not found' });
     }
 
-    db.updateCampaign(adId, { clicks: (campaign.clicks || 0) + 1 });
+    await db.updateCampaign(adId, { clicks: (campaign.clicks || 0) + 1 });
 
     res.json({ success: true, message: 'Click recorded' });
   } catch (err) {
@@ -604,15 +603,15 @@ app.post('/api/ad/click', optionalAuth, (req, res) => {
 });
 
 // Get user profile
-app.get('/api/user/profile', authMiddleware, (req, res) => {
+app.get('/api/user/profile', authMiddleware, async (req, res) => {
   try {
-    const user = db.getUserById(req.user.userId);
+    const user = await db.getUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const searches = db.getSearches(user.id, 5);
-    const withdrawals = db.getWithdrawals(user.id);
+    const searches = await db.getSearches(user.id, 5);
+    const withdrawals = await db.getWithdrawals(user.id);
 
     const pendingWithdrawals = withdrawals.filter(w => w.status === 'Processing').reduce((sum, w) => sum + w.amount, 0);
 
@@ -636,10 +635,10 @@ app.get('/api/user/profile', authMiddleware, (req, res) => {
 });
 
 // Get search history
-app.get('/api/user/searches', authMiddleware, (req, res) => {
+app.get('/api/user/searches', authMiddleware, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
-    const searches = db.getSearches(req.user.userId, limit);
+    const searches = await db.getSearches(req.user.userId, limit);
     res.json({ success: true, searches });
   } catch (err) {
     console.error('Searches error:', err);
@@ -648,9 +647,9 @@ app.get('/api/user/searches', authMiddleware, (req, res) => {
 });
 
 // Get withdrawal history
-app.get('/api/user/withdrawals', authMiddleware, (req, res) => {
+app.get('/api/user/withdrawals', authMiddleware, async (req, res) => {
   try {
-    const withdrawals = db.getWithdrawals(req.user.userId);
+    const withdrawals = await db.getWithdrawals(req.user.userId);
     res.json({ success: true, withdrawals });
   } catch (err) {
     console.error('Withdrawals error:', err);
@@ -659,7 +658,7 @@ app.get('/api/user/withdrawals', authMiddleware, (req, res) => {
 });
 
 // Request withdrawal
-app.post('/api/withdrawal/request', authMiddleware, (req, res) => {
+app.post('/api/withdrawal/request', authMiddleware, async (req, res) => {
   try {
     const { method, accountDetails, amount } = req.body;
     const userId = req.user.userId;
@@ -671,7 +670,7 @@ app.post('/api/withdrawal/request', authMiddleware, (req, res) => {
       return res.status(400).json({ error: 'Valid amount is required' });
     }
 
-    const user = db.getUserById(userId);
+    const user = await db.getUserById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -687,7 +686,7 @@ app.post('/api/withdrawal/request', authMiddleware, (req, res) => {
     }
 
     // Create withdrawal and deduct balance
-    const withdrawal = db.createWithdrawal({
+    const withdrawal = await db.createWithdrawal({
       userId,
       amount,
       method,
@@ -695,7 +694,7 @@ app.post('/api/withdrawal/request', authMiddleware, (req, res) => {
     });
 
     const newBalance = user.balance - amount;
-    db.updateUserBalance(userId, newBalance, user.search_count, user.lifetime_earnings);
+    await db.updateUserBalance(userId, newBalance, user.search_count, user.lifetime_earnings);
 
     res.json({
       success: true,
@@ -714,9 +713,10 @@ app.post('/api/withdrawal/request', authMiddleware, (req, res) => {
 // ═════════════════════════════════════════════════════════════════════════
 
 // List campaigns
-app.get('/api/advertiser/campaigns', authMiddleware, (req, res) => {
+app.get('/api/advertiser/campaigns', authMiddleware, async (req, res) => {
   try {
-    const campaigns = db.getCampaigns().map(c => {
+    const allCampaigns = await db.getCampaigns();
+    const campaigns = allCampaigns.map(c => {
       let keywords = [];
       try {
         keywords = typeof c.keywords === 'string' ? JSON.parse(c.keywords) : (c.keywords || []);
@@ -731,9 +731,9 @@ app.get('/api/advertiser/campaigns', authMiddleware, (req, res) => {
 });
 
 // Create campaign
-app.post('/api/advertiser/campaign', authMiddleware, (req, res) => {
+app.post('/api/advertiser/campaign', authMiddleware, async (req, res) => {
   try {
-    const campaign = db.createCampaign(req.body);
+    const campaign = await db.createCampaign(req.body);
     res.status(201).json({ success: true, campaign });
   } catch (err) {
     console.error('Campaign create error:', err);
@@ -742,9 +742,9 @@ app.post('/api/advertiser/campaign', authMiddleware, (req, res) => {
 });
 
 // Update campaign
-app.patch('/api/advertiser/campaign/:id', authMiddleware, (req, res) => {
+app.patch('/api/advertiser/campaign/:id', authMiddleware, async (req, res) => {
   try {
-    const campaign = db.updateCampaign(req.params.id, req.body);
+    const campaign = await db.updateCampaign(req.params.id, req.body);
     if (!campaign) {
       return res.status(404).json({ error: 'Campaign not found' });
     }
@@ -756,9 +756,9 @@ app.patch('/api/advertiser/campaign/:id', authMiddleware, (req, res) => {
 });
 
 // Delete campaign
-app.delete('/api/advertiser/campaign/:id', authMiddleware, (req, res) => {
+app.delete('/api/advertiser/campaign/:id', authMiddleware, async (req, res) => {
   try {
-    const deleted = db.deleteCampaign(req.params.id);
+    const deleted = await db.deleteCampaign(req.params.id);
     if (!deleted) {
       return res.status(404).json({ error: 'Campaign not found' });
     }
@@ -774,21 +774,21 @@ app.delete('/api/advertiser/campaign/:id', authMiddleware, (req, res) => {
 // ═════════════════════════════════════════════════════════════════════════
 
 // Add test balance (dev only)
-app.post('/api/dev/add-balance', authMiddleware, (req, res) => {
+app.post('/api/dev/add-balance', authMiddleware, async (req, res) => {
   try {
     const { amount } = req.body;
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: 'Valid amount is required' });
     }
 
-    const user = db.getUserById(req.user.userId);
+    const user = await db.getUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     const newBalance = user.balance + amount;
     const newLifetimeEarnings = user.lifetime_earnings + amount;
-    db.updateUserBalance(user.id, newBalance, user.search_count, newLifetimeEarnings);
+    await db.updateUserBalance(user.id, newBalance, user.search_count, newLifetimeEarnings);
 
     res.json({
       success: true,
@@ -803,27 +803,32 @@ app.post('/api/dev/add-balance', authMiddleware, (req, res) => {
 });
 
 // Reset user data (dev only)
-app.post('/api/dev/reset', authMiddleware, (req, res) => {
+app.post('/api/dev/reset', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
-    const user = db.getUserById(userId);
+    const user = await db.getUserById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     // Reset balance and search count
-    db.updateUserBalance(userId, 0, 0, 0);
+    await db.updateUserBalance(userId, 0, 0, 0);
 
-    // Delete user's searches
-    db.db.prepare('DELETE FROM searches WHERE user_id = ?').run(userId);
-
-    // Delete user's withdrawals
-    db.db.prepare('DELETE FROM withdrawals WHERE user_id = ?').run(userId);
+    if (db.isMongo) {
+      const { Search, Withdrawal } = require('./mongo_models');
+      await Search.deleteMany({ user_id: userId });
+      await Withdrawal.deleteMany({ user_id: userId });
+    } else if (db.db) {
+      // Delete user's searches
+      db.db.prepare('DELETE FROM searches WHERE user_id = ?').run(userId);
+      // Delete user's withdrawals
+      db.db.prepare('DELETE FROM withdrawals WHERE user_id = ?').run(userId);
+    }
 
     res.json({
       success: true,
       message: 'User data reset successfully',
-      user: sanitizeUser(db.getUserById(userId))
+      user: sanitizeUser(await db.getUserById(userId))
     });
   } catch (err) {
     console.error('Reset error:', err);

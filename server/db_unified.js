@@ -14,6 +14,7 @@ class UnifiedDatabase {
   constructor() {
     this.isMongo = false;
     this.mongoConnected = false;
+    this.db = sqliteDb.db;
   }
 
   async init() {
@@ -174,6 +175,13 @@ class UnifiedDatabase {
     return sqliteDb.getCampaigns();
   }
 
+  async getCampaignById(id) {
+    if (this.isMongo) {
+      return await Campaign.findOne({ id }).lean();
+    }
+    return sqliteDb.getCampaignById(id);
+  }
+
   async createCampaign(campaign) {
     if (this.isMongo) {
       const id = campaign.id || ('ad_' + crypto.randomBytes(10).toString('hex'));
@@ -230,6 +238,14 @@ class UnifiedDatabase {
       return;
     }
     return sqliteDb.deleteSession(token);
+  }
+
+  async deleteExpiredSessions() {
+    if (this.isMongo) {
+      await Session.deleteMany({ expires_at: { $lt: new Date().toISOString() } });
+      return;
+    }
+    return sqliteDb.deleteExpiredSessions();
   }
 }
 
