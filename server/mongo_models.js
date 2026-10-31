@@ -73,16 +73,33 @@ const sessionSchema = new mongoose.Schema({
   created_at: { type: String, default: () => new Date().toISOString() }
 });
 
+// Inquiry Schema (From Businesses wanting to advertise)
+const inquirySchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  company: { type: String, required: true },
+  contact: { type: String, required: true },
+  email: { type: String, required: true },
+  url: { type: String, required: true },
+  budget: { type: String, required: true },
+  platform: { type: String, default: 'all' },
+  keywords: { type: String, default: '' },
+  goal: { type: String, default: '' },
+  status: { type: String, default: 'Pending Review' },
+  created_at: { type: String, default: () => new Date().toISOString() }
+});
+
 const User = mongoose.model('User', userSchema);
 const Search = mongoose.model('Search', searchSchema);
 const Withdrawal = mongoose.model('Withdrawal', withdrawalSchema);
 const Campaign = mongoose.model('Campaign', campaignSchema);
 const Session = mongoose.model('Session', sessionSchema);
+const Inquiry = mongoose.model('Inquiry', inquirySchema);
 
 module.exports = {
   User,
   Search,
   Withdrawal,
   Campaign,
-  Session
+  Session,
+  Inquiry
 };

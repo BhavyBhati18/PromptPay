@@ -222,6 +222,47 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+// Public endpoint for businesses submitting an ad inquiry
+app.post('/api/advertiser/inquiry', async (req, res) => {
+  try {
+    const { company, contact, email, url, budget, platform, keywords, goal } = req.body;
+
+    if (!company || !email || !url || !budget) {
+      return res.status(400).json({ error: 'Company name, work email, website URL, and budget are required.' });
+    }
+
+    const { Inquiry } = require('./mongo_models');
+    const crypto = require('crypto');
+    const id = 'inq_' + crypto.randomBytes(8).toString('hex');
+
+    if (db.isMongo) {
+      await Inquiry.create({
+        id,
+        company,
+        contact: contact || company,
+        email,
+        url,
+        budget,
+        platform: platform || 'all',
+        keywords: keywords || '',
+        goal: goal || '',
+        status: 'Pending Review',
+        created_at: new Date().toISOString()
+      });
+    }
+
+    console.log(`\n📬 NEW ADVERTISER INQUIRY from: ${company} (${email}) - Budget: ${budget}`);
+
+    res.json({
+      success: true,
+      message: 'Inquiry submitted successfully. Our ad ops team will contact you shortly.'
+    });
+  } catch (err) {
+    console.error('Inquiry error:', err);
+    res.status(500).json({ error: 'Failed to record inquiry', details: err.message });
+  }
+});
+
 // Admin Database Viewer API (Allows secret key OR admin email login)
 app.get('/api/admin/database', (req, res) => {
   const adminKey = req.headers['x-admin-key'] || req.query.key;
