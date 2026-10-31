@@ -8,5 +8,8 @@
     "test:server": "cd server && npm test"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "archiver": "^8.0.0"
+  }
 }

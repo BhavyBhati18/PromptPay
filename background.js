@@ -6,7 +6,7 @@
 
 importScripts("ad_engine.js");
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://promptpay-api-zzao.onrender.com/api";
 const REWARD_PER_SEARCH = 0.0003;
 const MIN_WITHDRAWAL_AMOUNT = 10.00;
 
