@@ -1,4 +1,4 @@
-# Cloud Deployment Guide — AI Search Ads & PromptPay
+# Cloud Deployment Guide — AI Search Ads & PayGpt
 
 Your project is now powered by **MongoDB Atlas Cloud Database**.
 This means your database lives permanently in the cloud and automatically scales to millions of users!
@@ -24,8 +24,8 @@ This means your database lives permanently in the cloud and automatically scales
    - **Start Command**: `node index.js`
    - **Instance Type**: Free ($0/month)
 6. Under **Environment Variables**, add:
-   - `MONGO_URI`: `mongodb+srv://bhavy401821_db_user:uPNx4KtKOAYLcdar@cluster0.q8e1kyh.mongodb.net/promptpay?retryWrites=true&w=majority`
-   - `JWT_SECRET`: `promptpay_production_secret_key_849203492348`
+   - `MONGO_URI`: `mongodb+srv://bhavy401821_db_user:uPNx4KtKOAYLcdar@cluster0.q8e1kyh.mongodb.net/PayGpt?retryWrites=true&w=majority`
+   - `JWT_SECRET`: `PayGpt_production_secret_key_849203492348`
    - `ADMIN_EMAIL`: `bhavy4018.21@gmail.com`
    - `ADMIN_KEY`: `admin123`
 7. Click **"Deploy Web Service"**.
