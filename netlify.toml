@@ -1,0 +1,15 @@
+[build]
+  publish = "server/public"
+
+# Proxy API calls from Netlify frontend to your live Node.js cloud backend
+[[redirects]]
+  from = "/api/*"
+  to = "https://promptpay-api-zzao.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Fallback for client-side routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
