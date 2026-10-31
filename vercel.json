@@ -1,19 +1,11 @@
 {
+  "version": 2,
   "outputDirectory": "server/public",
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/:path*",
       "destination": "https://promptpay-api-zzao.onrender.com/api/:path*"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://promptpay-api-zzao.onrender.com/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
     }
   ]
 }
