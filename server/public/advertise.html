@@ -5,189 +5,728 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Advertise on PayGpt — Reach AI Power Users</title>
   <meta name="description" content="Sponsor high-intent AI queries on ChatGPT and Google Gemini. Reach developers, creators, and decision-makers in real time.">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="auth.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    .inquiry-wrapper {
-      max-width: 800px;
-      margin: 3rem auto 5rem;
-      padding: 0 1.5rem;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c14;
+      --bg-card: rgba(255,255,255,0.04);
+      --bg-input: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08);
+      --border-focus: rgba(56,189,248,0.6);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56,189,248,0.2);
+      --accent-purple: #a78bfa;
+      --accent-green: #34d399;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --radius: 12px;
+      --radius-lg: 20px;
     }
-    .inquiry-hero {
-      text-align: center;
-      margin-bottom: 2.5rem;
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    .inquiry-hero h1 {
-      font-size: 2.5rem;
+
+    /* ── Animated background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 10%, rgba(56,189,248,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 80%, rgba(167,139,250,0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,12,20,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      font-family: 'Space Grotesk', sans-serif;
       font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: 0.75rem;
+      font-size: 1.2rem;
       color: #fff;
     }
-    .inquiry-hero p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto;
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
     }
-    .inquiry-card {
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: #fff; }
+
+    .btn-nav {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-nav:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Page layout ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(56,189,248,0.1);
+      border: 1px solid rgba(56,189,248,0.25);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+
+    .pulse {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0.6); }
+      50% { box-shadow: 0 0 0 6px rgba(56,189,248,0); }
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #fff 40%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      display: block;
+    }
+
+    .stat-value span {
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-weight: 500;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Two-column layout ── */
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .split-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Left panel — benefits ── */
+    .benefits-panel h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .benefits-panel > p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .benefit-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.25rem;
       background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .benefit-item:hover {
+      border-color: rgba(56,189,248,0.3);
+      transform: translateX(4px);
+    }
+
+    .benefit-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue { background: rgba(56,189,248,0.12); }
+    .icon-purple { background: rgba(167,139,250,0.12); }
+    .icon-green { background: rgba(52,211,153,0.12); }
+    .icon-orange { background: rgba(251,146,60,0.12); }
+
+    .benefit-text h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    .benefit-text p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .testimonial {
+      background: linear-gradient(135deg, rgba(56,189,248,0.06), rgba(167,139,250,0.06));
+      border: 1px solid rgba(56,189,248,0.15);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .testimonial p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .testimonial-author span {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .testimonial-author small {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: block;
+    }
+
+    /* ── Right panel — form ── */
+    .form-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 2.5rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
     }
-    .form-grid {
+
+    .form-header {
+      margin-bottom: 2rem;
+    }
+
+    .form-header h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-header p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .form-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.5rem 0;
+    }
+
+    .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
+      gap: 1rem;
     }
-    @media (max-width: 650px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .inquiry-card { padding: 1.5rem; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .form-card { padding: 1.5rem; }
     }
-    .form-group-full {
-      grid-column: 1 / -1;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
     }
-    .inquiry-card label {
-      display: block;
-      font-size: 0.85rem;
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-muted);
-      margin-bottom: 0.45rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
     }
-    .inquiry-card input,
-    .inquiry-card select,
-    .inquiry-card textarea {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      background: rgba(18, 24, 38, 0.9);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
       color: #fff;
-      font-size: 0.95rem;
+      font-size: 0.93rem;
       font-family: inherit;
-      transition: all 0.2s ease;
+      padding: 0.85rem 1rem;
+      transition: all 0.2s;
+      width: 100%;
     }
-    .inquiry-card input:focus,
-    .inquiry-card select:focus,
-    .inquiry-card textarea:focus {
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-dim);
+    }
+
+    .form-group select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+    }
+
+    .form-group select option {
+      background: #111827;
+      color: #fff;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
       outline: none;
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: rgba(56,189,248,0.04);
     }
-    .inquiry-benefits {
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .budget-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .budget-pill {
+      padding: 0.45rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.18s;
+      background: var(--bg-input);
+    }
+
+    .budget-pill:hover,
+    .budget-pill.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .platform-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 2.5rem;
+      gap: 0.6rem;
     }
-    @media (max-width: 700px) {
-      .inquiry-benefits { grid-template-columns: 1fr; }
-    }
-    .benefit-box {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
+
+    .platform-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.75rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-input);
+      transition: all 0.18s;
       text-align: center;
+      user-select: none;
     }
-    .benefit-box .icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
-    .benefit-box h4 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
-    .benefit-box p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+    .platform-option:hover,
+    .platform-option.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .platform-option span { font-size: 1.3rem; }
+
+    /* hidden select kept for form submission */
+    #target-platform { display: none; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(56,189,248,0.3); }
+    .submit-btn:hover::before { opacity: 1; }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .form-footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 1rem;
+    }
+
+    .form-footer-note a { color: var(--accent); text-decoration: none; }
+
+    /* Alert box */
+    .alert {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .alert-success {
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.3);
+      color: #34d399;
+    }
+
+    .alert-error {
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.3);
+      color: #f87171;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    .footer a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
 
-  <!-- Sticky Navbar -->
-  <header class="navbar">
-    <div class="container nav-container">
-      <a href="/" class="brand">
-        <div class="brand-icon">⚡</div>
-        <span>PayGpt</span>
-      </a>
-
-      <nav class="nav-links">
-        <a href="/">← Return to Home</a>
-        <a href="/login.html">Member Log In</a>
-      </nav>
-
-      <div class="nav-actions">
-        <a href="/login.html" class="btn-secondary-sm">Log In</a>
-        <a href="/register.html" class="btn-primary-sm">Get Started</a>
-      </div>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">⚡</div>
+      <span>PayGpt</span>
+    </a>
+    <div class="nav-right">
+      <a href="/" class="nav-link">← Home</a>
+      <a href="/login.html" class="nav-link">Log In</a>
+      <a href="/register.html" class="btn-nav">Get Started Free</a>
     </div>
-  </header>
+  </nav>
 
-  <div class="inquiry-wrapper">
-    <div class="inquiry-hero">
-      <div class="hero-pill" style="margin-bottom: 1rem;">
-        <span class="pulse-dot"></span>
-        <span>Sponsor High-Intent AI Searches</span>
+  <div class="page">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="badge">
+        <div class="pulse"></div>
+        Now Accepting Advertisers
       </div>
-      <h1>Advertise Your Product on AI</h1>
-      <p>Place non-intrusive, context-matched recommendations directly above results in ChatGPT and Google Gemini.</p>
+      <h1>Reach Users While<br>They Think</h1>
+      <p>Your ad appears above AI responses on ChatGPT and Gemini — exactly when users are searching for what you offer.</p>
     </div>
 
-    <!-- Value Props -->
-    <div class="inquiry-benefits">
-      <div class="benefit-box">
-        <div class="icon">🎯</div>
-        <h4>Keyword Precision</h4>
-        <p>Trigger your ad strictly when users prompt specific keywords (e.g. "cloud hosting", "python", "copywriting").</p>
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat">
+        <span class="stat-value">10K<span>+</span></span>
+        <div class="stat-label">Active Users</div>
       </div>
-      <div class="benefit-box">
-        <div class="icon">📈</div>
-        <h4>High-Intent Users</h4>
-        <p>Reach developers, tech leads, and professionals actively seeking tools and solutions.</p>
+      <div class="stat">
+        <span class="stat-value">95<span>%</span></span>
+        <div class="stat-label">High-Intent Queries</div>
       </div>
-      <div class="benefit-box">
-        <div class="icon">🛡️</div>
-        <h4>Clean & Native</h4>
-        <p>Discreet single-line sponsored cards that users actually trust and click.</p>
+      <div class="stat">
+        <span class="stat-value">2</span>
+        <div class="stat-label">AI Platforms</div>
+      </div>
+      <div class="stat">
+        <span class="stat-value">24<span>h</span></span>
+        <div class="stat-label">Campaign Setup Time</div>
       </div>
     </div>
 
-    <!-- Inquiry Submission Form -->
-    <div class="inquiry-card">
-      <div id="form-alert" class="alert-box" style="display: none; margin-bottom: 1.5rem;"></div>
+    <!-- Split layout -->
+    <div class="split-layout">
 
-      <form id="advertise-form">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="company-name">Company / Brand Name *</label>
-            <input type="text" id="company-name" placeholder="Acme Technologies" required>
+      <!-- Left: Benefits -->
+      <div class="benefits-panel">
+        <h2>Why Advertise on PayGpt?</h2>
+        <p>Connect with professionals, developers, and decision-makers at their most engaged moment — inside an AI conversation.</p>
+
+        <div class="benefit-item">
+          <div class="benefit-icon icon-blue">🎯</div>
+          <div class="benefit-text">
+            <h4>Keyword-Triggered Ads</h4>
+            <p>Your ad only shows when a user prompts topics you care about — "cloud hosting", "React", "copywriting", "design tools".</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon icon-purple">🧠</div>
+          <div class="benefit-text">
+            <h4>High-Intent Audience</h4>
+            <p>AI users are actively solving problems. They're researching tools, comparing products, and ready to act.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon icon-green">🛡️</div>
+          <div class="benefit-text">
+            <h4>Non-Intrusive Format</h4>
+            <p>Discreet sponsored cards that blend with the AI UI — no pop-ups, no interruptions. Users trust them.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon icon-orange">⚡</div>
+          <div class="benefit-text">
+            <h4>Live in 24 Hours</h4>
+            <p>Submit your request and our team will have your campaign configured and running within one business day.</p>
+          </div>
+        </div>
+
+        <div class="testimonial">
+          <p>"We saw a 3x CTR compared to traditional display ads. The audience quality on PayGpt is unlike anything else."</p>
+          <div class="testimonial-author">
+            <div class="avatar">AK</div>
+            <div>
+              <span>Alex Kumar</span>
+              <small>Marketing Lead, DevTools Co.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Form -->
+      <div class="form-card">
+        <div class="form-header">
+          <h2>Request a Campaign</h2>
+          <p>Fill in your details and we'll get back to you within 24 hours.</p>
+        </div>
+
+        <div id="form-alert" class="alert"></div>
+
+        <form id="advertise-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Company / Brand *</label>
+              <input type="text" id="company-name" placeholder="Acme Technologies" required>
+            </div>
+            <div class="form-group">
+              <label>Your Name *</label>
+              <input type="text" id="contact-name" placeholder="Jane Smith" required>
+            </div>
+            <div class="form-group">
+              <label>Business Email *</label>
+              <input type="email" id="work-email" placeholder="jane@acme.com" required>
+            </div>
+            <div class="form-group">
+              <label>Product URL *</label>
+              <input type="url" id="website-url" placeholder="https://acme.com" required>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="contact-name">Contact Person *</label>
-            <input type="text" id="contact-name" placeholder="Jane Smith" required>
+          <div class="form-divider"></div>
+
+          <div class="form-group full" style="margin-bottom:1rem;">
+            <label>Monthly Budget (USD) *</label>
+            <div class="budget-pills">
+              <div class="budget-pill" data-value="$100 - $500">$100 – $500</div>
+              <div class="budget-pill" data-value="$500 - $2,500">$500 – $2.5K</div>
+              <div class="budget-pill" data-value="$2,500 - $10,000">$2.5K – $10K</div>
+              <div class="budget-pill" data-value="$10,000+">$10K+ Enterprise</div>
+            </div>
+            <input type="hidden" id="monthly-budget" required>
           </div>
 
-          <div class="form-group">
-            <label for="work-email">Business Email *</label>
-            <input type="email" id="work-email" placeholder="jane@acme.com" required>
-          </div>
-
-          <div class="form-group">
-            <label for="website-url">Product / Landing Page URL *</label>
-            <input type="url" id="website-url" placeholder="https://acme.com" required>
-          </div>
-
-          <div class="form-group">
-            <label for="monthly-budget">Target Monthly Budget (USD) *</label>
-            <select id="monthly-budget" required>
-              <option value="" disabled selected>Select budget range</option>
-              <option value="$100 - $500">$100 – $500 (Starter)</option>
-              <option value="$500 - $2,500">$500 – $2,500 (Growth)</option>
-              <option value="$2,500 - $10,000">$2,500 – $10,000 (Scale)</option>
-              <option value="$10,000+">$10,000+ (Enterprise)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="target-platform">Target Placements</label>
+          <div class="form-group full" style="margin-bottom:1rem;">
+            <label>Placement Platform</label>
+            <div class="platform-grid">
+              <div class="platform-option active" data-value="all">
+                <span>🤖</span> Both Platforms
+              </div>
+              <div class="platform-option" data-value="chatgpt">
+                <span>💬</span> ChatGPT Only
+              </div>
+              <div class="platform-option" data-value="gemini">
+                <span>✨</span> Gemini Only
+              </div>
+            </div>
             <select id="target-platform">
               <option value="all">Both ChatGPT & Google Gemini</option>
               <option value="chatgpt">ChatGPT Only</option>
@@ -195,41 +734,75 @@
             </select>
           </div>
 
-          <div class="form-group-full">
-            <label for="keywords">Target Keywords or Audience Intent</label>
-            <input type="text" id="keywords" placeholder="e.g. coding, developer tools, react, postgres, vpn, copywriting">
-            <small style="color: var(--text-dim); font-size: 0.775rem; margin-top: 0.35rem; display: block;">
-              Comma-separated topics or terms where you want your ad to show.
-            </small>
+          <div class="form-group full" style="margin-bottom:1rem;">
+            <label>Target Keywords</label>
+            <input type="text" id="keywords" placeholder="e.g. coding, react, postgres, vpn, copywriting">
+            <span class="field-hint">Comma-separated. Your ad shows when users prompt these topics.</span>
           </div>
 
-          <div class="form-group-full">
-            <label for="campaign-goal">Campaign Objective / Special Requirements</label>
-            <textarea id="campaign-goal" rows="4" placeholder="Tell us about the product you want to promote, any promotional discounts, or target audience details..."></textarea>
+          <div class="form-group full">
+            <label>Campaign Goals / Notes</label>
+            <textarea id="campaign-goal" rows="3" placeholder="Tell us about your product, target audience, or any special requirements..."></textarea>
           </div>
-        </div>
 
-        <button type="submit" class="btn-submit" id="submit-btn" style="margin-top: 1.5rem;">
-          <span>Submit Advertising Request →</span>
-        </button>
-      </form>
+          <button type="submit" class="submit-btn" id="submit-btn">
+            Submit Advertising Request →
+          </button>
+
+          <p class="form-footer-note">
+            No commitment required. By submitting you agree to our <a href="#">Terms</a>. We respond within 24 hours.
+          </p>
+        </form>
+      </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="footer">
-    <div class="container footer-bottom">
-      <p>© 2026 PayGpt Technologies Inc. All rights reserved.</p>
-    </div>
+    © 2026 PayGpt Technologies Inc. All rights reserved. &nbsp;|&nbsp;
+    <a href="/">Home</a> &nbsp;|&nbsp;
+    <a href="/login.html">Log In</a>
   </footer>
 
   <script>
+    // Budget pills
+    const budgetPills = document.querySelectorAll('.budget-pill');
+    const budgetInput = document.getElementById('monthly-budget');
+
+    budgetPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        budgetPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        budgetInput.value = pill.dataset.value;
+      });
+    });
+
+    // Platform selector
+    const platformOptions = document.querySelectorAll('.platform-option');
+    const platformSelect = document.getElementById('target-platform');
+
+    platformOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        platformOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        platformSelect.value = opt.dataset.value;
+      });
+    });
+
+    // Form submission
     const form = document.getElementById('advertise-form');
     const alertBox = document.getElementById('form-alert');
     const submitBtn = document.getElementById('submit-btn');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (!budgetInput.value) {
+        alertBox.className = 'alert alert-error';
+        alertBox.textContent = 'Please select a monthly budget.';
+        alertBox.style.display = 'block';
+        return;
+      }
+
       alertBox.style.display = 'none';
 
       const payload = {
@@ -237,14 +810,14 @@
         contact: document.getElementById('contact-name').value.trim(),
         email: document.getElementById('work-email').value.trim(),
         url: document.getElementById('website-url').value.trim(),
-        budget: document.getElementById('monthly-budget').value,
-        platform: document.getElementById('target-platform').value,
+        budget: budgetInput.value,
+        platform: platformSelect.value,
         keywords: document.getElementById('keywords').value.trim(),
         goal: document.getElementById('campaign-goal').value.trim()
       };
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span>Submitting Request...</span>';
+      submitBtn.textContent = 'Submitting...';
 
       try {
         const res = await fetch('/api/advertiser/inquiry', {
@@ -256,25 +829,27 @@
         const data = await res.json();
 
         if (res.ok && data.success) {
-          alertBox.className = 'alert-box alert-success';
-          alertBox.innerHTML = '<strong>Request Received!</strong> Thank you for your interest. Our advertising team will review your product and reach out via email within 24 hours to set up your campaign.';
+          alertBox.className = 'alert alert-success';
+          alertBox.innerHTML = '<strong>🎉 Request Received!</strong> Our team will review your campaign and reach out within 24 hours to get you live.';
           alertBox.style.display = 'block';
           form.reset();
+          budgetPills.forEach(p => p.classList.remove('active'));
+          budgetInput.value = '';
+          platformOptions.forEach(o => o.classList.remove('active'));
+          platformOptions[0].classList.add('active');
+          platformSelect.value = 'all';
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>Submit Advertising Request →</span>';
+          submitBtn.textContent = 'Submit Advertising Request →';
+          alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-          alertBox.className = 'alert-box alert-error';
-          alertBox.textContent = data.error || 'Failed to submit request. Please try again.';
-          alertBox.style.display = 'block';
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span>Submit Advertising Request →</span>';
+          throw new Error(data.error || 'Submission failed');
         }
       } catch (err) {
-        alertBox.className = 'alert-box alert-error';
-        alertBox.textContent = 'Network error. Please try again later.';
+        alertBox.className = 'alert alert-error';
+        alertBox.textContent = err.message || 'Network error. Please try again.';
         alertBox.style.display = 'block';
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span>Submit Advertising Request →</span>';
+        submitBtn.textContent = 'Submit Advertising Request →';
       }
     });
   </script>
