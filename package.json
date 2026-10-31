@@ -1,0 +1,12 @@
+{
+  "name": "ai-search-ads-extension",
+  "version": "1.0.0",
+  "description": "Earn $0.0003 for searches on ChatGPT & Gemini. Withdraw at $10.00. Advertiser portal included.",
+  "scripts": {
+    "package": "node scripts/package.js",
+    "start:server": "cd server && npm start",
+    "test:server": "cd server && npm test"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - AI Search & Earn</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="dashboard-nav">
+    <div class="nav-container">
+      <a href="/" class="brand-link">
+        <span class="brand-icon">⚡</span>
+        <span>AI Search & Earn</span>
+        <span class="brand-badge">Dashboard</span>
+      </a>
+
+      <div class="nav-user">
+        <a href="/advertiser_portal.html" id="dash-admin-ads" style="display: none; color: #38bdf8; text-decoration: none; font-weight: 700; font-size: 0.85rem; margin-right: 0.75rem;">📢 Ad Manager</a>
+        <a href="/admin_database.html" id="dash-admin-db" style="display: none; color: #10b981; text-decoration: none; font-weight: 700; font-size: 0.85rem; margin-right: 1.25rem;">🗄️ Database Explorer</a>
+        <div class="user-info">
+          <div class="user-avatar" id="avatar-initials">U</div>
+          <div class="user-text">
+            <span class="user-name" id="user-display-name">Loading...</span>
+            <span class="user-email" id="user-display-email"></span>
+          </div>
+        </div>
+        <button class="btn-logout" id="logout-btn">Log Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <div class="welcome-header">
+      <div>
+        <h1 id="welcome-title">Welcome to your Dashboard</h1>
+        <p>Real-time tracking of prompts, rewards, and payout status.</p>
+      </div>
+      <div class="badge-status">
+        <span class="status-dot"></span>
+        <span>Account Active · Earning Active</span>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Current Available Balance</div>
+        <div class="stat-value highlight" id="stat-balance">$0.0000</div>
+        <div class="stat-subtext">Ready for withdrawal at $10.00</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Lifetime Earnings</div>
+        <div class="stat-value" id="stat-lifetime">$0.0000</div>
+        <div class="stat-subtext">Total generated across all time</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Total Prompts Processed</div>
+        <div class="stat-value" id="stat-searches">0</div>
+        <div class="stat-subtext">$0.0003 earned per validated prompt</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Total Paid Out</div>
+        <div class="stat-value" id="stat-withdrawn">$0.00</div>
+        <div class="stat-subtext" id="stat-payout-count">0 completed payouts</div>
+      </div>
+    </section>
+
+    <!-- Withdrawal Panel -->
+    <section class="withdrawal-card">
+      <div class="withdrawal-inner">
+        <div class="withdrawal-info">
+          <h3>Payout Progress</h3>
+          <p id="withdrawal-subtext">Reach the $10.00 minimum threshold to request your payout via PayPal, UPI, USDT, or Bank Wire.</p>
+          <div class="progress-container">
+            <div class="progress-labels">
+              <span id="progress-percent">0% reached</span>
+              <span id="progress-remaining">$10.00 to threshold</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-withdraw" id="open-withdraw-btn" disabled>
+            Request Payout
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Data Rows -->
+    <div class="content-grid">
+      <!-- Left Column: Search Feed -->
+      <section class="card-panel">
+        <div class="card-panel-header">
+          <h3>Recent AI Prompts & Rewards</h3>
+          <span class="badge-counter" id="search-count-badge">0 prompts</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Prompt</th>
+                <th>Platform</th>
+                <th>Reward</th>
+                <th>Sponsored Ad</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="searches-tbody">
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <p>No prompt activity logged yet.</p>
+                    <p style="font-size: 0.8rem; margin-top: 0.25rem;">Type a prompt in ChatGPT or Gemini with the extension installed to see rewards live!</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Right Column: Profile + Withdrawal History -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <section class="card-panel">
+          <div class="card-panel-header">
+            <h3>Profile Summary</h3>
+          </div>
+          <div class="profile-list">
+            <div class="profile-item">
+              <span class="profile-label">User ID</span>
+              <span class="profile-val" id="profile-uid" style="font-family: monospace; font-size: 0.75rem;">-</span>
+            </div>
+            <div class="profile-item">
+              <span class="profile-label">Full Name</span>
+              <span class="profile-val" id="profile-name">-</span>
+            </div>
+            <div class="profile-item">
+              <span class="profile-label">Email</span>
+              <span class="profile-val" id="profile-email">-</span>
+            </div>
+            <div class="profile-item">
+              <span class="profile-label">Phone</span>
+              <span class="profile-val" id="profile-phone">Not specified</span>
+            </div>
+            <div class="profile-item">
+              <span class="profile-label">Member Since</span>
+              <span class="profile-val" id="profile-joined">-</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card-panel">
+          <div class="card-panel-header">
+            <h3>Withdrawal History</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="withdrawals-tbody">
+                <tr>
+                  <td colspan="4">
+                    <div class="empty-state" style="padding: 1.5rem 0.5rem;">
+                      <p>No withdrawal requests yet.</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Payout Modal -->
+  <div class="modal-backdrop" id="withdraw-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Request Withdrawal</h2>
+        <button class="btn-close-modal" id="close-modal-btn">✕</button>
+      </div>
+
+      <div id="modal-alert" class="alert-box" style="display: none; margin-bottom: 1rem;"></div>
+
+      <form class="modal-form" id="withdraw-form">
+        <div class="form-group">
+          <label for="withdraw-amount">Amount (USD)</label>
+          <input type="number" id="withdraw-amount" step="0.01" min="10" placeholder="10.00" required>
+        </div>
+
+        <div class="form-group">
+          <label for="withdraw-method">Payout Method</label>
+          <select id="withdraw-method" required>
+            <option value="PayPal">PayPal</option>
+            <option value="UPI">UPI (Google Pay / PhonePe / Paytm)</option>
+            <option value="USDT (TRC-20)">USDT (TRC-20 Tron)</option>
+            <option value="USDT (ERC-20)">USDT (ERC-20 Ethereum)</option>
+            <option value="Bank Transfer">Bank Wire Transfer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="account-details" id="account-label">PayPal Email or Account Address</label>
+          <input type="text" id="account-details" placeholder="name@domain.com or user@upi" required>
+        </div>
+
+        <p class="modal-notice">
+          Payouts are processed manually and verified against click fraud. Please allow 24-48 business hours for funds to clear into your account.
+        </p>
+
+        <button type="submit" class="btn-confirm-withdraw" id="confirm-withdraw-btn">Confirm Payout Request</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

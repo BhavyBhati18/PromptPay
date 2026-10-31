@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advertiser Hub - AI Search Ads Marketplace</title>
+  <link rel="stylesheet" href="advertiser_portal.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">📢</div>
+        <div class="brand-info">
+          <h2>AdManager AI</h2>
+          <span>Advertiser Hub</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="view-campaigns">
+          <span class="nav-icon">📊</span>
+          <span>All Campaigns</span>
+        </button>
+        <button class="nav-item" data-view="view-create">
+          <span class="nav-icon">➕</span>
+          <span>Create New Ad</span>
+        </button>
+        <button class="nav-item" data-view="view-preview">
+          <span class="nav-icon">👁️</span>
+          <span>In-Page Preview</span>
+        </button>
+        <button class="nav-item" data-view="view-docs">
+          <span class="nav-icon">📖</span>
+          <span>Ad Guidelines</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="portal-badge">
+          <span>Targeting:</span>
+          <strong>ChatGPT & Gemini</strong>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 id="page-title">Active Ad Campaigns</h1>
+          <p id="page-desc">List and manage sponsored placements shown during ChatGPT and Gemini searches.</p>
+        </div>
+        <div class="topbar-actions">
+          <a href="/" class="btn-secondary" style="text-decoration: none; padding: 0.6rem 1.1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; margin-right: 0.75rem; font-size: 0.9rem;">
+            ← Return to Website
+          </a>
+          <button id="btn-top-create" class="btn-primary">
+            <span>+ Create Ad Campaign</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- View 1: Campaigns List & Metrics -->
+      <section class="view-section active" id="view-campaigns">
+        <!-- Analytics Overview Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-title">Active Campaigns</span>
+            <span class="metric-value" id="metric-active-count">0</span>
+            <span class="metric-sub">Displaying on ChatGPT & Gemini</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Total Impressions</span>
+            <span class="metric-value" id="metric-impressions">0</span>
+            <span class="metric-sub">Prompts served</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Total Clicks</span>
+            <span class="metric-value" id="metric-clicks">0</span>
+            <span class="metric-sub">Direct visits to sponsor sites</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Total Budget Allocated</span>
+            <span class="metric-value" id="metric-budget">$0.00</span>
+            <span class="metric-sub" id="metric-spent">Spent: $0.00</span>
+          </div>
+        </div>
+
+        <!-- Campaigns Table / Cards Container -->
+        <div class="campaigns-header">
+          <h3>Your Listed Ads</h3>
+          <div class="filter-group">
+            <select id="filter-status" class="select-filter">
+              <option value="all">All Statuses</option>
+              <option value="active">Active Only</option>
+              <option value="paused">Paused</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="campaigns-grid" id="campaigns-container">
+          <!-- Dynamic Campaign Cards rendered here -->
+        </div>
+      </section>
+
+      <!-- View 2: Create Campaign Form -->
+      <section class="view-section" id="view-create">
+        <div class="form-container">
+          <div class="form-header">
+            <h2>List Your Company's Ad</h2>
+            <p>Your ad will be dynamically displayed to users searching matching topics on ChatGPT and Google Gemini.</p>
+          </div>
+
+          <form id="ad-create-form">
+            <input type="hidden" id="form-ad-id" value="">
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="ad-company">Company / Brand Name *</label>
+                <input type="text" id="ad-company" class="form-input" placeholder="e.g. Supabase, Notion, NordVPN" required>
+              </div>
+              <div class="form-group flex-1">
+                <label for="ad-icon">Icon / Emoji</label>
+                <input type="text" id="ad-icon" class="form-input" placeholder="⚡, 💻, 🚀, 🛡️, 🌐" value="🚀" maxlength="4">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="ad-title">Ad Headline / Title *</label>
+              <input type="text" id="ad-title" class="form-input" placeholder="e.g. Build in a weekend, scale to millions" required maxlength="60">
+              <small class="form-hint">Max 60 characters for crisp reading.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="ad-description">Ad Description *</label>
+              <textarea id="ad-description" class="form-input" rows="3" placeholder="Describe your product or special offer clearly..." required maxlength="160"></textarea>
+              <small class="form-hint">Highlight the unique benefit or offer (e.g. 50% discount, free trial).</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="ad-cta">Button Call to Action (CTA) *</label>
+                <input type="text" id="ad-cta" class="form-input" placeholder="e.g. Try Free, Claim Offer, Get Started" value="Try Free" required>
+              </div>
+              <div class="form-group flex-1">
+                <label for="ad-url">Destination Website URL *</label>
+                <input type="url" id="ad-url" class="form-input" placeholder="https://yourcompany.com/deal" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="ad-category">Category</label>
+                <select id="ad-category" class="form-input">
+                  <option value="Developer Tools">Developer Tools</option>
+                  <option value="AI & Machine Learning">AI & Machine Learning</option>
+                  <option value="Productivity & SaaS">Productivity & SaaS</option>
+                  <option value="Cloud & Hosting">Cloud & Hosting</option>
+                  <option value="Security & VPN">Security & VPN</option>
+                  <option value="Finance & Crypto">Finance & Crypto</option>
+                  <option value="Education & Courses">Education & Courses</option>
+                </select>
+              </div>
+              <div class="form-group flex-1">
+                <label for="ad-platform">Target Platform</label>
+                <select id="ad-platform" class="form-input">
+                  <option value="all">All (ChatGPT & Google Gemini)</option>
+                  <option value="chatgpt">ChatGPT Only</option>
+                  <option value="gemini">Google Gemini Only</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="ad-keywords">Target Keywords (Comma Separated)</label>
+                <input type="text" id="ad-keywords" class="form-input" placeholder="e.g. coding, python, database, api, react">
+                <small class="form-hint">When user prompts contain these keywords, your ad is prioritized.</small>
+              </div>
+              <div class="form-group flex-1">
+                <label for="ad-budget">Campaign Budget ($ USD) *</label>
+                <input type="number" id="ad-budget" class="form-input" min="5" step="5" value="50.00" required>
+                <small class="form-hint">Micropayment is deducted per search impression ($0.0003).</small>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="btn-save-ad">
+                🚀 Publish Ad Campaign
+              </button>
+              <button type="button" class="btn-secondary" id="btn-cancel-create">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- View 3: Live In-Page Preview -->
+      <section class="view-section" id="view-preview">
+        <div class="preview-container">
+          <div class="preview-header">
+            <h2>Live ChatGPT / Gemini Ad Placement Preview</h2>
+            <p>See exactly how your ad renders in real-time when a user enters a search prompt.</p>
+          </div>
+
+          <div class="mock-browser">
+            <div class="mock-browser-bar">
+              <div class="browser-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <div class="browser-address">https://chatgpt.com</div>
+            </div>
+            <div class="mock-browser-content">
+              <div class="mock-chat-bubble user">
+                <p>Can you show me how to build a scalable web application with databases and authentication?</p>
+              </div>
+              <div class="mock-chat-bubble assistant">
+                <p>Sure! To build a scalable modern web app, you will need a robust backend, scalable database architecture, and authentication system...</p>
+              </div>
+
+              <!-- Injected Floating Ad Card Preview -->
+              <div class="preview-ad-card">
+                <div class="preview-ad-card-header">
+                  <div style="display:flex; align-items:center; gap: 8px;">
+                    <span class="preview-badge">Sponsored</span>
+                    <span class="preview-reward">+0.0003$</span>
+                  </div>
+                  <div class="preview-controls">
+                    <span>−</span>
+                    <span>✕</span>
+                  </div>
+                </div>
+                <div class="preview-ad-body">
+                  <div class="preview-sponsor-row">
+                    <div class="preview-sponsor-icon" id="live-preview-icon">💻</div>
+                    <div>
+                      <div class="preview-company" id="live-preview-company">Cursor AI</div>
+                      <div class="preview-headline" id="live-preview-title">Code at the Speed of Thought</div>
+                    </div>
+                  </div>
+                  <p class="preview-desc" id="live-preview-desc">The AI-first Code Editor built for software engineers. 2x your programming productivity today.</p>
+                  <button class="preview-cta" id="live-preview-cta">Download Free →</button>
+                </div>
+                <div class="preview-footer">
+                  <span>Sponsored Placement</span>
+                  <span style="color:#38bdf8;">User earned $0.0003</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- View 4: Guidelines -->
+      <section class="view-section" id="view-docs">
+        <div class="docs-container">
+          <h2>Advertiser Guidelines & Revenue Model</h2>
+          <div class="docs-card">
+            <h3>How Search Targeting Works</h3>
+            <p>When users enter queries into ChatGPT or Google Gemini, our Ad Engine scans the prompt text for relevant keywords in real-time. If your ad matches the user's intent (e.g., prompt mentions "cloud hosting" and your ad has the "cloud" tag), your ad is prioritized for display.</p>
+          </div>
+          <div class="docs-card">
+            <h3>Priced for Maximum ROI</h3>
+            <p>Every impression costs only \$0.0003, which goes directly to rewarding the user for engaging with AI searches. Once users reach \$10.00, they withdraw their funds. This creates an authentic, win-win ecosystem where users welcome sponsored recommendations.</p>
+          </div>
+          <div class="docs-card">
+            <h3>Supported Placements</h3>
+            <ul>
+              <li><strong>ChatGPT</strong> (chatgpt.com & chat.openai.com)</li>
+              <li><strong>Google Gemini</strong> (gemini.google.com)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ad_engine.js"></script>
+  <script src="advertiser_portal.js"></script>
+  <script>
+    (async function verifyAdmin() {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.authenticated || data.user.email.toLowerCase() !== 'bhavy4018.21@gmail.com') {
+          document.body.innerHTML = `
+            <div style="background: #05070a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; padding: 2rem;">
+              <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 16px; padding: 2.5rem; text-align: center; max-width: 480px;">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔒</div>
+                <h2 style="color: #f87171; margin-bottom: 0.5rem;">Admin Access Restricted</h2>
+                <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 1.5rem;">Only <strong>bhavy4018.21@gmail.com</strong> is authorized to create and manage ad campaigns.</p>
+                <a href="/login.html" style="background: #fff; color: #000; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 700; font-size: 0.9rem;">Sign in as Admin →</a>
+              </div>
+            </div>
+          `;
+        }
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Admin Panel — PromptPay</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-container {
+      max-width: 1280px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 1.5rem;
+    }
+    .admin-title h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .admin-title p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .tabs-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-cyan);
+    }
+    .db-table-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      margin-bottom: 2.5rem;
+    }
+    table.db-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    table.db-table th {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      padding: 0.85rem 1rem;
+      text-transform: uppercase;
+      font-size: 0.725rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    table.db-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+    table.db-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .badge-tag {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .badge-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .action-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .action-btn:hover { background: rgba(255, 255, 255, 0.12); }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">⚡</div>
+        <span>PromptPay</span>
+      </a>
+      <div class="nav-actions">
+        <a href="/advertiser_portal.html" class="btn-secondary-sm">Ad Manager</a>
+        <a href="/dashboard.html" class="btn-secondary-sm">User Dashboard</a>
+        <a href="/" class="btn-primary-sm">View Website</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-container">
+    <div class="admin-header">
+      <div class="admin-title">
+        <h1>Database Admin Explorer</h1>
+        <p>Live SQLite database tables: Users, Search logs, Withdrawals, and Campaigns.</p>
+      </div>
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <a href="/advertiser_portal.html" class="btn-secondary-sm" style="background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.3); color: #38bdf8; font-weight: 700;">📢 Open Ad Campaign Manager →</a>
+        <button class="btn-primary-sm" onclick="loadAllData()">🔄 Refresh Database</button>
+      </div>
+    </div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="showTab('tab-users')">👥 Registered Users (<span id="count-users">0</span>)</button>
+      <button class="tab-btn" onclick="showTab('tab-searches')">🔍 Search / Prompt Logs (<span id="count-searches">0</span>)</button>
+      <button class="tab-btn" onclick="showTab('tab-withdrawals')">💳 Payout Requests (<span id="count-withdrawals">0</span>)</button>
+      <button class="tab-btn" onclick="showTab('tab-campaigns')">📢 Ad Campaigns (<span id="count-campaigns">0</span>)</button>
+    </div>
+
+    <!-- USERS TABLE -->
+    <div id="tab-users" class="tab-content">
+      <div class="db-table-wrap">
+        <table class="db-table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Current Balance</th>
+              <th>Prompts Count</th>
+              <th>Lifetime Earnings</th>
+              <th>Registered At</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-users">
+            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SEARCHES TABLE -->
+    <div id="tab-searches" class="tab-content" style="display: none;">
+      <div class="db-table-wrap">
+        <table class="db-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User ID</th>
+              <th>Prompt Query</th>
+              <th>Platform</th>
+              <th>Reward</th>
+              <th>Ad Shown</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-searches">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading searches...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WITHDRAWALS TABLE -->
+    <div id="tab-withdrawals" class="tab-content" style="display: none;">
+      <div class="db-table-wrap">
+        <table class="db-table">
+          <thead>
+            <tr>
+              <th>TX ID</th>
+              <th>User ID</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Account Details</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-withdrawals">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading withdrawals...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS TABLE -->
+    <div id="tab-campaigns" class="tab-content" style="display: none;">
+      <div class="db-table-wrap">
+        <table class="db-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Company</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Target Keywords</th>
+              <th>Impressions</th>
+              <th>Clicks</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-campaigns">
+            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading campaigns...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    async function loadAllData() {
+      try {
+        let keyParam = new URLSearchParams(window.location.search).get('key') || sessionStorage.getItem('adminKey');
+        const url = keyParam ? `/api/admin/database?key=${encodeURIComponent(keyParam)}` : '/api/admin/database';
+        
+        const res = await fetch(url, { credentials: 'include' });
+        
+        if (res.status === 401 || res.status === 403) {
+          const key = prompt('Admin Verification Required\nEnter Admin Key (default: admin123) OR Log in as bhavy4018.21@gmail.com:');
+          if (key) {
+            sessionStorage.setItem('adminKey', key);
+            window.location.href = `/admin_database.html?key=${encodeURIComponent(key)}`;
+            return;
+          }
+          
+          document.querySelector('.admin-container').innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 2.5rem; text-align: center; margin-top: 3rem;">
+              <h2 style="color: #f87171; margin-bottom: 0.75rem;">🔒 Admin Access Restricted</h2>
+              <p style="color: #cbd5e1; max-width: 500px; margin: 0 auto 1.5rem;">Please log in as <strong>bhavy4018.21@gmail.com</strong> or refresh to enter the admin key.</p>
+              <a href="/login.html" class="btn-primary-sm" style="display: inline-block;">Log in as bhavy4018.21@gmail.com →</a>
+            </div>
+          `;
+          return;
+        }
+
+        const data = await res.json();
+
+        // 1. Render Users
+        document.getElementById('count-users').textContent = data.users.length;
+        const usersTbody = document.getElementById('tbody-users');
+        if (data.users.length === 0) {
+          usersTbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No users registered yet.</td></tr>';
+        } else {
+          usersTbody.innerHTML = data.users.map(u => `
+            <tr>
+              <td><code style="color: var(--accent-cyan);">${escapeHtml(u.id)}</code></td>
+              <td style="font-weight: 600;">${escapeHtml(u.name || '-')}</td>
+              <td>${escapeHtml(u.email)}</td>
+              <td>${escapeHtml(u.phone || 'None')}</td>
+              <td style="color: var(--accent-emerald); font-weight: 700;">$${Number(u.balance).toFixed(4)}</td>
+              <td>${u.search_count}</td>
+              <td>$${Number(u.lifetime_earnings).toFixed(4)}</td>
+              <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}</td>
+            </tr>
+          `).join('');
+        }
+
+        // 2. Render Searches
+        document.getElementById('count-searches').textContent = data.searches.length;
+        const searchesTbody = document.getElementById('tbody-searches');
+        if (data.searches.length === 0) {
+          searchesTbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No searches recorded yet.</td></tr>';
+        } else {
+          searchesTbody.innerHTML = data.searches.map(s => `
+            <tr>
+              <td><code>${escapeHtml(s.id)}</code></td>
+              <td><code>${escapeHtml(s.user_id)}</code></td>
+              <td style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(s.query || '-')}</td>
+              <td><span class="badge-tag badge-blue">${escapeHtml(s.platform)}</span></td>
+              <td style="color: var(--accent-emerald); font-weight: 700;">+$${Number(s.reward).toFixed(4)}</td>
+              <td>${escapeHtml(s.ad_shown || 'None')}</td>
+              <td>${s.timestamp ? new Date(s.timestamp).toLocaleTimeString() : '-'}</td>
+            </tr>
+          `).join('');
+        }
+
+        // 3. Render Withdrawals
+        document.getElementById('count-withdrawals').textContent = data.withdrawals.length;
+        const withdrawalsTbody = document.getElementById('tbody-withdrawals');
+        if (data.withdrawals.length === 0) {
+          withdrawalsTbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No payout requests yet.</td></tr>';
+        } else {
+          withdrawalsTbody.innerHTML = data.withdrawals.map(w => `
+            <tr>
+              <td><code>${escapeHtml(w.id)}</code></td>
+              <td><code>${escapeHtml(w.user_id)}</code></td>
+              <td style="font-weight: 700; color: #fff;">$${Number(w.amount).toFixed(2)}</td>
+              <td><span class="badge-tag badge-blue">${escapeHtml(w.method)}</span></td>
+              <td>${escapeHtml(w.account_details)}</td>
+              <td><span class="badge-tag badge-amber">${escapeHtml(w.status)}</span></td>
+              <td>${w.requested_at ? new Date(w.requested_at).toLocaleDateString() : '-'}</td>
+            </tr>
+          `).join('');
+        }
+
+        // 4. Render Campaigns
+        document.getElementById('count-campaigns').textContent = data.campaigns.length;
+        const campaignsTbody = document.getElementById('tbody-campaigns');
+        campaignsTbody.innerHTML = data.campaigns.map(c => `
+          <tr>
+            <td><code>${escapeHtml(c.id)}</code></td>
+            <td style="font-weight: 600;">${c.icon || ''} ${escapeHtml(c.company)}</td>
+            <td>${escapeHtml(c.title)}</td>
+            <td>${escapeHtml(c.category)}</td>
+            <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; color: var(--text-dim);">${escapeHtml(c.keywords || '')}</td>
+            <td>${c.impressions || 0}</td>
+            <td>${c.clicks || 0}</td>
+            <td><span class="badge-tag badge-green">${escapeHtml(c.status)}</span></td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error('Failed to load database data:', err);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>'"]/g, t => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[t] || t));
+    }
+
+    loadAllData();
+  </script>
+</body>
+</html>

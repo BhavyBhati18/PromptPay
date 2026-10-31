@@ -1,0 +1,343 @@
+{
+  "users": {
+    "test_user_1788868032683": {
+      "id": "test_user_1788868032683",
+      "balance": 0.0003,
+      "searchCount": 1,
+      "lifetimeEarnings": 10.0003,
+      "createdAt": "2026-09-08T11:47:12.873Z",
+      "lastActive": "2026-09-08T11:47:12.897Z"
+    },
+    "test_user_1788868287756": {
+      "id": "test_user_1788868287756",
+      "balance": 0.0003,
+      "searchCount": 1,
+      "lifetimeEarnings": 10.0003,
+      "createdAt": "2026-09-08T11:51:27.768Z",
+      "lastActive": "2026-09-08T11:51:27.791Z"
+    },
+    "test_user_1788882185784": {
+      "id": "test_user_1788882185784",
+      "balance": 0.0003,
+      "searchCount": 1,
+      "lifetimeEarnings": 10.0003,
+      "createdAt": "2026-09-08T15:43:05.790Z",
+      "lastActive": "2026-09-08T15:43:05.855Z"
+    }
+  },
+  "campaigns": [
+    {
+      "company": "Test Brand Inc",
+      "title": "Revolutionary Cloud AI",
+      "description": "The fastest serverless AI GPU cluster in the cloud.",
+      "cta": "Claim $100",
+      "url": "https://testbrand.ai",
+      "category": "AI & Machine Learning",
+      "platform": "chatgpt",
+      "keywords": [
+        "cloud",
+        "gpu",
+        "serverless"
+      ],
+      "budget": 500,
+      "id": "ad-mtsu9klq-xxlv",
+      "createdAt": "2026-09-08T15:43:05.871Z",
+      "impressions": 0,
+      "clicks": 0,
+      "spent": 0,
+      "status": "active",
+      "icon": "🚀"
+    },
+    {
+      "company": "Scaler",
+      "icon": "🚀",
+      "title": "Learn Ai  ,  Data science",
+      "description": "this is not just an ordinary course  .",
+      "cta": "Try Free",
+      "url": "https://www.scaler.com/",
+      "category": "AI & Machine Learning",
+      "platform": "all",
+      "keywords": [],
+      "budget": 1000,
+      "id": "ad-mtso8m39-qgiq",
+      "createdAt": "2026-09-08T12:54:23.445Z",
+      "impressions": 0,
+      "clicks": 0,
+      "spent": 0,
+      "status": "active"
+    },
+    {
+      "company": "Web Test Brand",
+      "title": "Instant Cloud Servers",
+      "description": "Deploy lightning-fast nodes with one click.",
+      "cta": "Try Now",
+      "url": "https://webtestbrand.com",
+      "category": "Cloud & Hosting",
+      "platform": "all",
+      "keywords": [
+        "cloud",
+        "server",
+        "deploy"
+      ],
+      "budget": 50,
+      "id": "ad-mtso3jtj-17yt",
+      "createdAt": "2026-09-08T12:50:27.223Z",
+      "impressions": 0,
+      "clicks": 0,
+      "spent": 0,
+      "status": "active"
+    },
+    {
+      "company": "Test Brand Inc",
+      "title": "Revolutionary Cloud AI",
+      "description": "The fastest serverless AI GPU cluster in the cloud.",
+      "cta": "Claim $100",
+      "url": "https://testbrand.ai",
+      "category": "Cloud & Hosting",
+      "platform": "all",
+      "keywords": [
+        "cloud",
+        "gpu",
+        "serverless"
+      ],
+      "budget": 100,
+      "id": "ad-mtslzos7-76hs",
+      "createdAt": "2026-09-08T11:51:27.799Z",
+      "impressions": 0,
+      "clicks": 0,
+      "spent": 0,
+      "status": "active"
+    },
+    {
+      "company": "Test Brand Inc",
+      "title": "Revolutionary Cloud AI",
+      "description": "The fastest serverless AI GPU cluster in the cloud.",
+      "cta": "Claim $100",
+      "url": "https://testbrand.ai",
+      "category": "Cloud & Hosting",
+      "platform": "all",
+      "keywords": [
+        "cloud",
+        "gpu",
+        "serverless"
+      ],
+      "budget": 1700,
+      "id": "ad-mtslu83u-6q9q",
+      "createdAt": "2026-09-08T11:47:12.906Z",
+      "impressions": 0,
+      "clicks": 0,
+      "spent": 0,
+      "status": "active",
+      "icon": "🚀"
+    },
+    {
+      "id": "ad-cursor-ai",
+      "company": "Cursor AI",
+      "title": "Code at the Speed of Thought",
+      "description": "The AI-first Code Editor built for software engineers. 2x your programming productivity today.",
+      "cta": "Download Free",
+      "url": "https://www.cursor.com",
+      "category": "Developer Tools",
+      "keywords": [
+        "code",
+        "coding",
+        "python",
+        "javascript",
+        "react",
+        "programming",
+        "bug",
+        "developer",
+        "ide",
+        "vscode",
+        "software",
+        "api"
+      ],
+      "platform": "all",
+      "icon": "💻",
+      "impressions": 3,
+      "clicks": 3,
+      "budget": 150,
+      "spent": 0.0009,
+      "status": "active",
+      "createdAt": "2026-09-08T11:46:37.716Z"
+    },
+    {
+      "id": "ad-notion-ai",
+      "company": "Notion AI",
+      "title": "Your Connected AI Workspace",
+      "description": "Write faster, think bigger, and organize any workflow with Notion's built-in AI assistant.",
+      "cta": "Try Notion Free",
+      "url": "https://www.notion.so/product/ai",
+      "category": "Productivity & SaaS",
+      "keywords": [
+        "write",
+        "writing",
+        "note",
+        "notes",
+        "summary",
+        "summarize",
+        "organize",
+        "essay",
+        "docs",
+        "project",
+        "meeting"
+      ],
+      "platform": "all",
+      "icon": "📝",
+      "impressions": 0,
+      "clicks": 0,
+      "budget": 200,
+      "spent": 0,
+      "status": "active",
+      "createdAt": "2026-09-08T11:46:37.717Z"
+    },
+    {
+      "id": "ad-digitalocean",
+      "company": "DigitalOcean",
+      "title": "Deploy Cloud Servers in Seconds",
+      "description": "Get $200 free cloud credit. Scale your apps, databases, and AI models effortlessly.",
+      "cta": "Claim $200 Credit",
+      "url": "https://www.digitalocean.com",
+      "category": "Cloud & Hosting",
+      "keywords": [
+        "server",
+        "cloud",
+        "deploy",
+        "hosting",
+        "docker",
+        "kubernetes",
+        "database",
+        "backend",
+        "linux",
+        "devops"
+      ],
+      "platform": "all",
+      "icon": "☁️",
+      "impressions": 0,
+      "clicks": 0,
+      "budget": 250,
+      "spent": 0,
+      "status": "active",
+      "createdAt": "2026-09-08T11:46:37.717Z"
+    },
+    {
+      "id": "ad-nordvpn",
+      "company": "NordVPN",
+      "title": "Secure Your Digital Privacy Online",
+      "description": "Protect your personal data and browse with military-grade encryption. Get 70% off + 3 extra months.",
+      "cta": "Get 70% Off",
+      "url": "https://nordvpn.com",
+      "category": "Security & VPN",
+      "keywords": [
+        "vpn",
+        "privacy",
+        "security",
+        "protect",
+        "ip",
+        "safe",
+        "crypto",
+        "wifi",
+        "browse",
+        "hack"
+      ],
+      "platform": "all",
+      "icon": "🛡️",
+      "impressions": 0,
+      "clicks": 0,
+      "budget": 180,
+      "spent": 0,
+      "status": "active",
+      "createdAt": "2026-09-08T11:46:37.717Z"
+    },
+    {
+      "id": "ad-grammarly",
+      "company": "Grammarly AI",
+      "title": "Flawless Writing with AI Precision",
+      "description": "Elevate your grammar, tone, and clarity instantly across emails, essays, and reports.",
+      "cta": "Install Free Plugin",
+      "url": "https://www.grammarly.com",
+      "category": "Productivity & SaaS",
+      "keywords": [
+        "grammar",
+        "spell",
+        "email",
+        "essay",
+        "english",
+        "proofread",
+        "resume",
+        "letter",
+        "sentence",
+        "text"
+      ],
+      "platform": "all",
+      "icon": "✍️",
+      "impressions": 0,
+      "clicks": 0,
+      "budget": 120,
+      "spent": 0,
+      "status": "paused",
+      "createdAt": "2026-09-08T11:46:37.717Z"
+    }
+  ],
+  "withdrawals": [
+    {
+      "id": "TX-871643",
+      "userId": "test_user_1788882185784",
+      "amount": 10,
+      "method": "USDT (TRC-20)",
+      "accountDetails": "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
+      "requestedAt": "2026-09-08T15:43:05.858Z",
+      "status": "Processing",
+      "estimatedArrival": "Within 24-48 business hours"
+    },
+    {
+      "id": "TX-748629",
+      "userId": "test_user_1788868287756",
+      "amount": 10,
+      "method": "USDT (TRC-20)",
+      "accountDetails": "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
+      "requestedAt": "2026-09-08T11:51:27.793Z",
+      "status": "Processing",
+      "estimatedArrival": "Within 24-48 business hours"
+    },
+    {
+      "id": "TX-291819",
+      "userId": "test_user_1788868032683",
+      "amount": 10,
+      "method": "USDT (TRC-20)",
+      "accountDetails": "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
+      "requestedAt": "2026-09-08T11:47:12.898Z",
+      "status": "Processing",
+      "estimatedArrival": "Within 24-48 business hours"
+    }
+  ],
+  "searches": [
+    {
+      "id": "srch_mtsu9kkbsmdh",
+      "userId": "test_user_1788882185784",
+      "query": "how to write clean python code",
+      "platform": "chatgpt",
+      "reward": 0.0003,
+      "adShown": "Cursor AI",
+      "timestamp": "2026-09-08T15:43:05.819Z"
+    },
+    {
+      "id": "srch_mtslzorlp8u8",
+      "userId": "test_user_1788868287756",
+      "query": "how to write clean python code",
+      "platform": "chatgpt",
+      "reward": 0.0003,
+      "adShown": "Cursor AI",
+      "timestamp": "2026-09-08T11:51:27.777Z"
+    },
+    {
+      "id": "srch_mtslu835x4o3",
+      "userId": "test_user_1788868032683",
+      "query": "how to write clean python code",
+      "platform": "chatgpt",
+      "reward": 0.0003,
+      "adShown": "Cursor AI",
+      "timestamp": "2026-09-08T11:47:12.882Z"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Search & Earn</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo-icon">💰</div>
+        <div class="brand-text">
+          <h1>AI Search & Earn</h1>
+          <span class="badge-status"><span class="dot"></span> Active on ChatGPT & Gemini</span>
+        </div>
+      </div>
+      <button id="btn-open-portal" class="btn-portal" title="Open Advertiser Portal">
+        <span>📢 Place Ads</span>
+      </button>
+    </header>
+
+    <!-- Balance Card -->
+    <section class="balance-card">
+      <div class="balance-label">Current Balance</div>
+      <div class="balance-value" id="balance-display">$0.0000</div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-val" id="search-count-display">0</span>
+          <span class="stat-label">AI Searches</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-val" id="rate-display">$0.0003</span>
+          <span class="stat-label">Per Search</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-val" id="lifetime-display">$0.0000</span>
+          <span class="stat-label">Lifetime</span>
+        </div>
+      </div>
+
+      <!-- Progress toward $10 -->
+      <div class="payout-progress-container">
+        <div class="payout-progress-labels">
+          <span id="progress-percent">0% of $10.00 goal</span>
+          <span id="progress-remaining">$10.0000 remaining</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-bar" id="progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Withdraw Button -->
+      <button id="btn-withdraw" class="btn-withdraw disabled" disabled>
+        <span class="lock-icon" id="withdraw-icon">🔒</span>
+        <span id="withdraw-btn-text">Locked ($10.00 Minimum)</span>
+      </button>
+    </section>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-activity">Recent Activity</button>
+      <button class="tab-btn" data-tab="tab-payouts">Withdrawals (<span id="payout-count">0</span>)</button>
+      <button class="tab-btn" data-tab="tab-demo">⚡ Test Tools</button>
+    </div>
+
+    <!-- Tab 1: Recent Activity -->
+    <div class="tab-content active" id="tab-activity">
+      <div class="list-container" id="recent-searches-list">
+        <div class="empty-state">
+          <span class="empty-icon">🔍</span>
+          <p>No searches recorded yet.</p>
+          <small>Ask something on ChatGPT or Gemini to earn $0.0003!</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Withdrawals -->
+    <div class="tab-content" id="tab-payouts">
+      <div class="list-container" id="withdrawals-list">
+        <div class="empty-state">
+          <span class="empty-icon">💳</span>
+          <p>No withdrawals requested yet.</p>
+          <small>Reach $10.00 to request your first payout.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Demo / Testing Tools -->
+    <div class="tab-content" id="tab-demo">
+      <div class="demo-box">
+        <h4>🛠️ Quick Tester (Review & Demo)</h4>
+        <p>Instantly test the payout threshold without running 33,334 searches:</p>
+        <div class="demo-actions">
+          <button class="btn-demo" id="btn-add-5">+$5.00 Balance</button>
+          <button class="btn-demo highlight" id="btn-add-10">+$10.00 (Unlock Payout)</button>
+        </div>
+        <div class="demo-actions">
+          <button class="btn-demo secondary" id="btn-sim-search">Simulate Search</button>
+          <button class="btn-demo danger" id="btn-reset-data">Reset All Data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>AI Search Ads Engine v1.0</span>
+      <span class="safe-badge">✓ Secure & Verified</span>
+    </footer>
+  </div>
+
+  <!-- Withdrawal Modal -->
+  <div class="modal-overlay hidden" id="withdraw-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Withdraw Your Earnings</h3>
+        <button class="btn-modal-close" id="btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-balance-info">
+          Available: <strong id="modal-available-balance">$0.0000</strong>
+        </div>
+
+        <div class="form-group">
+          <label for="payout-method">Payment Method</label>
+          <select id="payout-method" class="form-control">
+            <option value="PayPal">PayPal</option>
+            <option value="USDT (TRC-20)">USDT Crypto (TRC-20)</option>
+            <option value="USDT (ERC-20)">USDT Crypto (ERC-20)</option>
+            <option value="Bank Transfer">Bank Wire / ACH</option>
+            <option value="UPI / Stripe">UPI / Stripe Express</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="payout-account" id="account-label">PayPal Email Address</label>
+          <input type="text" id="payout-account" class="form-control" placeholder="user@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="payout-amount">Withdrawal Amount ($)</label>
+          <input type="number" id="payout-amount" class="form-control" min="10" step="0.01" value="10.00">
+          <small class="form-hint">Minimum withdrawal: $10.00</small>
+        </div>
+
+        <div class="form-feedback hidden" id="modal-feedback"></div>
+
+        <button id="btn-submit-withdrawal" class="btn-submit-payout">
+          Confirm & Withdraw
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - AI Search & Earn</title>
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="/" class="auth-logo">
+          <span class="logo-icon">⚡</span>
+          <span>AI Search & Earn</span>
+        </a>
+        <h1>Create Your Account</h1>
+        <p>Start turning every prompt on ChatGPT & Gemini into real cash.</p>
+        
+        <div class="earning-pill">
+          <span>🚀</span>
+          <span>Earn $0.0003 Per AI Prompt</span>
+        </div>
+      </div>
+
+      <div class="benefit-list">
+        <div class="benefit-item">
+          <span class="benefit-check">✓</span>
+          <span>Automatic tracking via free Chrome extension</span>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-check">✓</span>
+          <span>Cash out at $10.00 to PayPal, UPI, Crypto (USDT), or Bank</span>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-check">✓</span>
+          <span>No spam, zero private conversation logging</span>
+        </div>
+      </div>
+
+      <div id="alert-box" class="alert-box" style="display: none;"></div>
+
+      <form id="register-form">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="John Doe" required autocomplete="name" autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="name@domain.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone / WhatsApp (Optional for payout alerts)</label>
+          <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" autocomplete="tel">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password (min 6 characters)</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" placeholder="Choose a password" required minlength="6" autocomplete="new-password">
+            <button type="button" class="toggle-password" id="toggle-pw" tabindex="-1" title="Show password">👁️</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter password" required minlength="6" autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn-submit" id="submit-btn">
+          <span>Create Free Account →</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a href="/login.html">Log In</a></p>
+        <p><a href="/" class="back-link">← Return to Homepage</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('register-form');
+    const alertBox = document.getElementById('alert-box');
+    const submitBtn = document.getElementById('submit-btn');
+    const togglePw = document.getElementById('toggle-pw');
+    const passwordInput = document.getElementById('password');
+
+    togglePw.addEventListener('click', () => {
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      togglePw.textContent = isPassword ? '🔒' : '👁️';
+    });
+
+    function showAlert(msg, isError = true) {
+      alertBox.textContent = msg;
+      alertBox.className = isError ? 'alert-box alert-error' : 'alert-box alert-success';
+      alertBox.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (!name || !email || !password) {
+        showAlert('Please fill in all required fields.');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert('Password must be at least 6 characters.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAlert('Passwords do not match. Please re-enter.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Creating your account...</span>';
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ name, email, phone, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showAlert('Account created! Loading your dashboard...', false);
+
+          if (window.chrome && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({
+              userId: data.user.id,
+              userEmail: data.user.email,
+              userName: data.user.name,
+              balance: data.user.balance,
+              authToken: data.token
+            });
+          }
+
+          setTimeout(() => {
+            window.location.href = '/dashboard.html';
+          }, 600);
+        } else {
+          showAlert(data.error || 'Failed to create account.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Create Free Account →</span>';
+        }
+      } catch (err) {
+        showAlert('Could not connect to server. Please verify the server is running.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Create Free Account →</span>';
+      }
+    });
+  </script>
+</body>
+</html>

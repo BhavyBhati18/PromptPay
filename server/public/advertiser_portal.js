@@ -1,0 +1,432 @@
+/**
+ * AI Search Ads - Advertiser Portal Controller
+ * Manages ad campaign creation, editing, live analytics, and interactive in-page previews.
+ * Works seamlessly in both Chrome Extension environment and standalone Web environment.
+ */
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Determine API base: relative path if on web server, or absolute if in extension
+  const API_BASE = (typeof window !== "undefined" && window.location.origin && window.location.origin.startsWith("http"))
+    ? `${window.location.origin}/api`
+    : "http://localhost:3000/api";
+
+  let campaigns = [];
+  let currentEditingId = null;
+
+  // DOM Elements - Navigation & Views
+  const navItems = document.querySelectorAll(".nav-item");
+  const viewSections = document.querySelectorAll(".view-section");
+  const pageTitle = document.getElementById("page-title");
+  const pageDesc = document.getElementById("page-desc");
+  const btnTopCreate = document.getElementById("btn-top-create");
+
+  // Metrics Elements
+  const metricActiveCount = document.getElementById("metric-active-count");
+  const metricImpressions = document.getElementById("metric-impressions");
+  const metricClicks = document.getElementById("metric-clicks");
+  const metricBudget = document.getElementById("metric-budget");
+  const metricSpent = document.getElementById("metric-spent");
+
+  // Filter & Grid
+  const campaignsContainer = document.getElementById("campaigns-container");
+  const filterStatus = document.getElementById("filter-status");
+
+  // Form Elements
+  const adCreateForm = document.getElementById("ad-create-form");
+  const formAdId = document.getElementById("form-ad-id");
+  const adCompany = document.getElementById("ad-company");
+  const adIcon = document.getElementById("ad-icon");
+  const adTitle = document.getElementById("ad-title");
+  const adDescription = document.getElementById("ad-description");
+  const adCta = document.getElementById("ad-cta");
+  const adUrl = document.getElementById("ad-url");
+  const adCategory = document.getElementById("ad-category");
+  const adPlatform = document.getElementById("ad-platform");
+  const adKeywords = document.getElementById("ad-keywords");
+  const adBudget = document.getElementById("ad-budget");
+  const btnCancelCreate = document.getElementById("btn-cancel-create");
+  const btnSaveAd = document.getElementById("btn-save-ad");
+
+  // Live Preview Elements
+  const livePreviewIcon = document.getElementById("live-preview-icon");
+  const livePreviewCompany = document.getElementById("live-preview-company");
+  const livePreviewTitle = document.getElementById("live-preview-title");
+  const livePreviewDesc = document.getElementById("live-preview-desc");
+  const livePreviewCta = document.getElementById("live-preview-cta");
+
+  // View Navigation
+  function switchView(viewId) {
+    navItems.forEach(item => {
+      if (item.dataset.view === viewId) {
+        item.classList.add("active");
+      } else {
+        item.classList.remove("active");
+      }
+    });
+
+    viewSections.forEach(section => {
+      if (section.id === viewId) {
+        section.classList.add("active");
+      } else {
+        section.classList.remove("active");
+      }
+    });
+
+    // Update Titles
+    if (viewId === "view-campaigns") {
+      pageTitle.innerText = "Active Ad Campaigns";
+      pageDesc.innerText = "List and manage sponsored placements shown during ChatGPT and Gemini searches.";
+    } else if (viewId === "view-create") {
+      pageTitle.innerText = currentEditingId ? "Edit Ad Campaign" : "List New Ad Campaign";
+      pageDesc.innerText = "Configure headlines, keywords, and budget for your AI search ad.";
+    } else if (viewId === "view-preview") {
+      pageTitle.innerText = "Live Search Preview";
+      pageDesc.innerText = "See how your ad appears inside ChatGPT and Gemini conversations.";
+    } else if (viewId === "view-docs") {
+      pageTitle.innerText = "Advertiser Guidelines";
+      pageDesc.innerText = "Learn how AI search targeting and micropayment rewards operate.";
+    }
+  }
+
+  navItems.forEach(btn => {
+    btn.addEventListener("click", () => switchView(btn.dataset.view));
+  });
+
+  btnTopCreate.addEventListener("click", () => {
+    resetForm();
+    switchView("view-create");
+  });
+
+  btnCancelCreate.addEventListener("click", () => {
+    resetForm();
+    switchView("view-campaigns");
+  });
+
+  /**
+   * Safe storage helper (works in web and extension)
+   */
+  async function saveToLocalCache(cList) {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      try {
+        await chrome.storage.local.set({ campaigns: cList });
+      } catch (e) {
+        console.warn("Chrome storage error:", e);
+      }
+    } else if (typeof localStorage !== "undefined") {
+      try {
+        localStorage.setItem("ai_ads_campaigns", JSON.stringify(cList));
+      } catch (e) {}
+    }
+  }
+
+  async function getFromLocalCache() {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      try {
+        const data = await chrome.storage.local.get(["campaigns"]);
+        if (data && data.campaigns && data.campaigns.length > 0) {
+          return data.campaigns;
+        }
+      } catch (e) {}
+    } else if (typeof localStorage !== "undefined") {
+      try {
+        const raw = localStorage.getItem("ai_ads_campaigns");
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  /**
+   * Load campaigns from backend API or local fallback
+   */
+  async function loadData() {
+    try {
+      const res = await fetch(`${API_BASE}/advertiser/campaigns`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.campaigns && json.campaigns.length > 0) {
+          campaigns = json.campaigns;
+          await saveToLocalCache(campaigns);
+          updateMetrics();
+          renderCampaigns();
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("Backend API unreachable, using local cache:", e.message);
+    }
+
+    const cached = await getFromLocalCache();
+    campaigns = cached || (typeof DEFAULT_CAMPAIGNS !== 'undefined' ? DEFAULT_CAMPAIGNS : []);
+    updateMetrics();
+    renderCampaigns();
+  }
+
+  /**
+   * Calculate and update global dashboard metrics
+   */
+  function updateMetrics() {
+    const activeList = campaigns.filter(c => c.status === "active");
+    metricActiveCount.innerText = activeList.length;
+
+    const totalImpressions = campaigns.reduce((acc, c) => acc + (c.impressions || 0), 0);
+    metricImpressions.innerText = totalImpressions.toLocaleString();
+
+    const totalClicks = campaigns.reduce((acc, c) => acc + (c.clicks || 0), 0);
+    metricClicks.innerText = totalClicks.toLocaleString();
+
+    const totalBudget = campaigns.reduce((acc, c) => acc + (parseFloat(c.budget) || 0), 0);
+    metricBudget.innerText = `$${totalBudget.toFixed(2)}`;
+
+    const totalSpent = campaigns.reduce((acc, c) => acc + (parseFloat(c.spent) || 0), 0);
+    metricSpent.innerText = `Spent: $${totalSpent.toFixed(4)}`;
+  }
+
+  /**
+   * Render campaign cards in grid
+   */
+  function renderCampaigns() {
+    const filter = filterStatus.value;
+    const filtered = campaigns.filter(c => {
+      if (filter === "active") return c.status === "active";
+      if (filter === "paused") return c.status === "paused";
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      campaignsContainer.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b; background: #0f172a; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+          <h3>No campaigns found</h3>
+          <p style="margin-top: 8px;">Create your first campaign to begin advertising on ChatGPT & Gemini.</p>
+        </div>
+      `;
+      return;
+    }
+
+    campaignsContainer.innerHTML = filtered.map(c => {
+      const ctr = (c.impressions && c.impressions > 0)
+        ? ((c.clicks || 0) / c.impressions * 100).toFixed(1)
+        : "0.0";
+
+      const keywords = (c.keywords || []).map(k => `<span class="keyword-badge">${escapeHtml(k)}</span>`).join("");
+      const statusClass = c.status === "active" ? "active" : "paused";
+      const statusText = c.status === "active" ? "● Active" : "⏸ Paused";
+      const toggleActionText = c.status === "active" ? "Pause" : "Resume";
+
+      return `
+        <div class="ad-campaign-card" data-id="${c.id}">
+          <div class="ad-card-top">
+            <div class="ad-card-company">
+              <div class="ad-card-icon">${c.icon || "🚀"}</div>
+              <div class="ad-card-names">
+                <h4>${escapeHtml(c.company)}</h4>
+                <span>${escapeHtml(c.category || "General")} • ${c.platform === "all" ? "ChatGPT & Gemini" : c.platform}</span>
+              </div>
+            </div>
+            <span class="status-tag ${statusClass}">${statusText}</span>
+          </div>
+
+          <div class="ad-card-headline">${escapeHtml(c.title)}</div>
+          <div class="ad-card-body">${escapeHtml(c.description)}</div>
+
+          <div class="ad-keywords-list">
+            ${keywords}
+          </div>
+
+          <div class="ad-stats-bar">
+            <div class="ad-stat-box">
+              <strong>${(c.impressions || 0).toLocaleString()}</strong>
+              <span>Impressions</span>
+            </div>
+            <div class="ad-stat-box">
+              <strong>${(c.clicks || 0).toLocaleString()}</strong>
+              <span>Clicks (${ctr}%)</span>
+            </div>
+            <div class="ad-stat-box">
+              <strong>$${(c.spent || 0).toFixed(2)}</strong>
+              <span>Spent of $${(c.budget || 0).toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div class="ad-card-actions">
+            <button class="btn-card-action btn-toggle-status" data-id="${c.id}">${toggleActionText}</button>
+            <button class="btn-card-action btn-edit-ad" data-id="${c.id}">Edit</button>
+            <button class="btn-card-action danger btn-delete-ad" data-id="${c.id}">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    attachCardEventListeners();
+  }
+
+  function attachCardEventListeners() {
+    // Toggle Active / Paused
+    document.querySelectorAll(".btn-toggle-status").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+        try {
+          await fetch(`${API_BASE}/advertiser/campaign/${id}/toggle`, { method: "PATCH" });
+        } catch (err) {}
+
+        if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+          try {
+            await chrome.runtime.sendMessage({ action: "TOGGLE_CAMPAIGN_STATUS", payload: { id } });
+          } catch (err) {}
+        }
+        await loadData();
+      });
+    });
+
+    // Edit Ad
+    document.querySelectorAll(".btn-edit-ad").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const id = e.target.dataset.id;
+        const target = campaigns.find(c => c.id === id);
+        if (target) {
+          populateFormForEdit(target);
+          switchView("view-create");
+        }
+      });
+    });
+
+    // Delete Ad
+    document.querySelectorAll(".btn-delete-ad").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+        if (confirm("Are you sure you want to delete this ad campaign?")) {
+          try {
+            await fetch(`${API_BASE}/advertiser/campaign/${id}`, { method: "DELETE" });
+          } catch (err) {}
+
+          if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+            try {
+              await chrome.runtime.sendMessage({ action: "DELETE_CAMPAIGN", payload: { id } });
+            } catch (err) {}
+          }
+          await loadData();
+        }
+      });
+    });
+  }
+
+  filterStatus.addEventListener("change", renderCampaigns);
+
+  /**
+   * Form population & Live preview syncing
+   */
+  function populateFormForEdit(ad) {
+    currentEditingId = ad.id;
+    formAdId.value = ad.id;
+    adCompany.value = ad.company || "";
+    adIcon.value = ad.icon || "🚀";
+    adTitle.value = ad.title || "";
+    adDescription.value = ad.description || "";
+    adCta.value = ad.cta || "Try Free";
+    adUrl.value = ad.url || "";
+    adCategory.value = ad.category || "Developer Tools";
+    adPlatform.value = ad.platform || "all";
+    adKeywords.value = (ad.keywords || []).join(", ");
+    adBudget.value = ad.budget || 50.00;
+    btnSaveAd.innerText = "💾 Update Ad Campaign";
+    updateLivePreview();
+  }
+
+  function resetForm() {
+    currentEditingId = null;
+    formAdId.value = "";
+    adCreateForm.reset();
+    adIcon.value = "🚀";
+    adBudget.value = "50.00";
+    btnSaveAd.innerText = "🚀 Publish Ad Campaign";
+    updateLivePreview();
+  }
+
+  function updateLivePreview() {
+    livePreviewIcon.innerText = adIcon.value || "🚀";
+    livePreviewCompany.innerText = adCompany.value || "Your Brand";
+    livePreviewTitle.innerText = adTitle.value || "Compelling Ad Headline";
+    livePreviewDesc.innerText = adDescription.value || "Clear value proposition highlighting your special product or service.";
+    livePreviewCta.innerText = `${adCta.value || "Try Free"} →`;
+  }
+
+  // Live input sync to preview
+  [adCompany, adIcon, adTitle, adDescription, adCta].forEach(input => {
+    input.addEventListener("input", updateLivePreview);
+  });
+
+  /**
+   * Submit Ad Form (Create or Update)
+   */
+  adCreateForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const keywordsArray = adKeywords.value
+      .split(",")
+      .map(k => k.trim().toLowerCase())
+      .filter(k => k.length > 0);
+
+    const campaignData = {
+      id: formAdId.value || undefined,
+      company: adCompany.value.trim(),
+      icon: adIcon.value.trim() || "🚀",
+      title: adTitle.value.trim(),
+      description: adDescription.value.trim(),
+      cta: adCta.value.trim(),
+      url: adUrl.value.trim(),
+      category: adCategory.value,
+      platform: adPlatform.value,
+      keywords: keywordsArray,
+      budget: parseFloat(adBudget.value) || 50.00
+    };
+
+    btnSaveAd.disabled = true;
+    btnSaveAd.innerText = "Saving Campaign...";
+
+    try {
+      // 1. Post to REST API directly
+      const res = await fetch(`${API_BASE}/advertiser/campaign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(campaignData)
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error ${res.status}`);
+      }
+
+      // 2. Also notify extension runtime if in extension context
+      if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+        try {
+          await chrome.runtime.sendMessage({
+            action: "SAVE_CAMPAIGN",
+            payload: campaignData
+          });
+        } catch (err) {}
+      }
+
+      alert("🎉 Campaign published successfully! Your ad is now active in the search rotation.");
+      await loadData();
+      resetForm();
+      switchView("view-campaigns");
+    } catch (err) {
+      alert("Error saving campaign: " + err.message);
+    } finally {
+      btnSaveAd.disabled = false;
+    }
+  });
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Check URL parameters (e.g. ?view=create)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("view") === "create") {
+    switchView("view-create");
+  }
+
+  // Initial Load
+  await loadData();
+});
