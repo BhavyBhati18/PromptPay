@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Database Admin Panel — QueryPay</title>
+  <title>QueryPay Admin Database Panel — Internal Use Only</title>
+  <link rel="canonical" href="https://prompt-pay-server.vercel.app/admin_database">
+  <meta name="description" content="Internal admin panel for managing QueryPay users, campaigns, sessions, and advertiser inquiries.">
   <link rel="stylesheet" href="styles.css">
   <style>
     .admin-container {
@@ -107,7 +109,7 @@
   <header class="navbar">
     <div class="container nav-container">
       <a href="/" class="brand">
-        <img src="/querypay_logo.jpg" alt="QueryPay Logo" class="brand-logo-img" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;">
+        <img src="/querypay_logo.jpg" alt="QueryPay Logo" class="brand-logo-img" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;" width="32" height="32">
         <span>QueryPay</span>
       </a>
       <div class="nav-actions">
@@ -303,7 +305,7 @@
               <td style="font-weight: 700; color: #fff;">${escapeHtml(inq.company)}</td>
               <td>${escapeHtml(inq.contact || '-')}</td>
               <td><a href="mailto:${escapeHtml(inq.email)}" style="color: #38bdf8; text-decoration: none;">${escapeHtml(inq.email)}</a></td>
-              <td><a href="${escapeHtml(inq.url)}" target="_blank" style="color: var(--accent-emerald); text-decoration: none;">Visit ↗</a></td>
+              <td><a href="${escapeHtml(inq.url)}" target="_blank" rel="noopener noreferrer" style="color: var(--accent-emerald); text-decoration: none;">Visit ↗</a></td>
               <td><span class="badge-tag badge-green">${escapeHtml(inq.budget)}</span></td>
               <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(inq.keywords || '-')}</td>
               <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(inq.goal || '-')}</td>

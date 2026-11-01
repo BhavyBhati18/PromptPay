@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /advertise
+Allow: /privacy
+Allow: /terms
+
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /admin_database
+Disallow: /advertiser_portal
+
+Sitemap: https://prompt-pay-server.vercel.app/sitemap.xml
