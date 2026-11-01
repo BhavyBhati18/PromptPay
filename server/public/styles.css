@@ -652,3 +652,26 @@ input[type="range"].styled-slider::-webkit-slider-thumb:hover {
   .features-strip { grid-template-columns: 1fr; }
   .hero-cta-group { flex-direction: column; }
 }
+
+/* ── Hide Netlify Drawer / Feedback / Badge ── */
+[data-netlify-deploy-id],
+#netlify-feedback-button,
+.netlify-feedback-button,
+#netlify-preview-drawer-container,
+netlify-drawer,
+[data-netlify-drawer],
+[data-netlify-preview-drawer],
+iframe[src*="netlify"],
+div[class*="netlify-drawer"],
+div[id*="netlify-drawer"],
+div[class*="netlify-badge"],
+div[id*="netlify-badge"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+}

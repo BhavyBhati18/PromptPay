@@ -8,6 +8,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    [data-netlify-deploy-id], #netlify-feedback-button, .netlify-feedback-button,
+    #netlify-preview-drawer-container, netlify-drawer, [data-netlify-drawer],
+    [data-netlify-preview-drawer], iframe[src*="netlify"], div[class*="netlify-drawer"],
+    div[id*="netlify-drawer"], div[class*="netlify-badge"], div[id*="netlify-badge"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      position: absolute !important;
+      left: -9999px !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+  </style>
 </head>
 <body>
   <!-- Navigation -->
