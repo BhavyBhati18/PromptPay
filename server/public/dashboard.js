@@ -181,6 +181,9 @@ if (methodSelect && accountLabel && accountInput) {
     if (methodSelect.value === 'Mobile Number Transfer') {
       accountLabel.textContent = 'Mobile Number / UPI ID (PhonePe / GPay / Paytm)';
       accountInput.placeholder = 'e.g. +91 9876543210 or yourname@upi';
+    } else if (methodSelect.value === 'Amazon Pay Gift Card') {
+      accountLabel.textContent = 'Amazon Account Email or Mobile Number';
+      accountInput.placeholder = 'e.g. your-email@gmail.com or +91 9876543210';
     } else {
       accountLabel.textContent = 'Bank Account Details (Account No, IFSC, Holder Name)';
       accountInput.placeholder = 'e.g. Account: 1234567890, IFSC: HDFC0001234, Name: John Doe';
