@@ -1,6 +1,6 @@
 /**
  * MongoDB Atlas Schemas & Models
- * Scalable cloud persistence for AI Search Ads & PayGpt
+ * Scalable cloud persistence for AI Search Ads & QueryPay
  */
 
 const mongoose = require('mongoose');

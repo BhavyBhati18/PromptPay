@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Open Advertiser Landing / Inquiry Page on website
   btnOpenPortal.addEventListener("click", () => {
-    chrome.tabs.create({ url: "https://paygpt.netlify.app/advertise.html" });
+    chrome.tabs.create({ url: "https://querypay.netlify.app/advertise.html" });
   });
 
   /**

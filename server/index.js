@@ -325,7 +325,7 @@ app.get('/api/health', async (req, res) => {
       status: 'ok',
       database: db.isMongo ? 'MongoDB Atlas' : 'Local SQLite',
       mongoError: db.mongoError,
-      uriSource: uri.startsWith('mongodb') ? (uri.includes('promptpay') ? 'promptpay' : 'PayGpt') : uri,
+      uriSource: uri.startsWith('mongodb') ? 'QueryPay' : uri,
       timestamp: new Date().toISOString(),
       userCount: users ? users.length : 0
     });
