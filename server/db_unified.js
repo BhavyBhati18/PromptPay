@@ -14,6 +14,7 @@ class UnifiedDatabase {
   constructor() {
     this.isMongo = false;
     this.mongoConnected = false;
+    this.mongoError = null;
     this.db = sqliteDb.db;
   }
 
@@ -31,6 +32,7 @@ class UnifiedDatabase {
         this.mongoConnected = true;
         console.log('✅ Connected successfully to MongoDB Atlas Cloud Database!');
       } catch (err) {
+        this.mongoError = err.message;
         console.warn('⚠️ MongoDB Atlas connection failed:', err.message);
         console.log('📦 Falling back to local SQLite database (database.sqlite)');
         this.isMongo = false;

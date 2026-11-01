@@ -315,6 +315,8 @@ app.get('/api/health', async (req, res) => {
     const users = await db.getAllUsers();
     res.json({
       status: 'ok',
+      database: db.isMongo ? 'MongoDB Atlas' : 'Local SQLite',
+      mongoError: db.mongoError,
       timestamp: new Date().toISOString(),
       userCount: users ? users.length : 0
     });
