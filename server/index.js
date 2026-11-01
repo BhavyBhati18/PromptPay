@@ -296,13 +296,20 @@ async function serveDatabaseData(res) {
     const searches = await db.getAllSearches(50);
     const withdrawals = await db.getAllWithdrawals();
     const campaigns = await db.getCampaigns();
+    
+    let inquiries = [];
+    if (db.isMongo) {
+      const { Inquiry } = require('./mongo_models');
+      inquiries = await Inquiry.find().sort({ created_at: -1 }).lean();
+    }
 
     res.json({
       success: true,
       users,
       searches,
       withdrawals,
-      campaigns
+      campaigns,
+      inquiries
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to read database', details: err.message });
