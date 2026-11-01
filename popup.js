@@ -56,9 +56,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Open Advertiser Portal
+  // Open Advertiser Landing / Inquiry Page on website
   btnOpenPortal.addEventListener("click", () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL("advertiser_portal.html") });
+    chrome.tabs.create({ url: "https://paygpt.netlify.app/advertise.html" });
   });
 
   /**
