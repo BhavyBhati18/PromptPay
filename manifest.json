@@ -52,7 +52,8 @@
       "resources": [
         "advertiser_portal.html",
         "ad_engine.js",
-        "icons/*"
+        "icons/*",
+        "safarnamma_logo.jpeg"
       ],
       "matches": ["*://chatgpt.com/*", "*://chat.openai.com/*", "*://gemini.google.com/*"]
     }

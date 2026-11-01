@@ -339,6 +339,12 @@ body {
   border: 1px solid rgba(234, 179, 8, 0.3);
 }
 
+.status-tag.completed {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
 .ad-card-headline {
   font-size: 13px;
   font-weight: 600;

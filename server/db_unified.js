@@ -55,19 +55,21 @@ class UnifiedDatabase {
 
   // ── USER METHODS ─────────────────────────────────────────────────────────
 
-  async createUser({ email, password_hash, name, phone = null }) {
+  async createUser({ id = null, email, password_hash, name, phone = null, balance = 0, lifetime_earnings = 0 }) {
     if (this.isMongo) {
-      const id = 'usr_' + crypto.randomBytes(12).toString('hex');
+      const finalId = id || ('usr_' + crypto.randomBytes(12).toString('hex'));
       const doc = await User.create({
-        id,
+        id: finalId,
         email: email.toLowerCase().trim(),
         password_hash,
         name: name.trim(),
-        phone
+        phone,
+        balance,
+        lifetime_earnings
       });
       return doc.toObject();
     }
-    return sqliteDb.createUser({ email, password_hash, name, phone });
+    return sqliteDb.createUser({ id, email, password_hash, name, phone, balance, lifetime_earnings });
   }
 
   async getUserByEmail(email) {
@@ -177,6 +179,15 @@ class UnifiedDatabase {
       return await Withdrawal.find({}).sort({ requested_at: -1 }).lean();
     }
     return sqliteDb.db.prepare('SELECT id, user_id, amount, method, account_details, status, requested_at FROM withdrawals ORDER BY requested_at DESC').all();
+  }
+
+  async updateWithdrawalStatus(id, status) {
+    if (this.isMongo) {
+      const now = new Date().toISOString();
+      await Withdrawal.updateOne({ id }, { $set: { status, processed_at: now } });
+      return await Withdrawal.findOne({ id }).lean();
+    }
+    return sqliteDb.updateWithdrawalStatus(id, status);
   }
 
   // ── CAMPAIGNS ────────────────────────────────────────────────────────────

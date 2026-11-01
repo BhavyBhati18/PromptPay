@@ -26,6 +26,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const DEFAULT_CAMPAIGNS = [
   {
+    id: 'camp_safarnamma',
+    company: 'Safarnamma',
+    title: 'Safarnamma — Curated Group Trips & Backpacking Journeys',
+    description: 'Discover offbeat destinations, community backpacking adventures, and boutique group travel across the world.',
+    cta: 'Explore Trips →',
+    url: 'https://safarnamma.com',
+    category: 'Travel & Hospitality',
+    keywords: JSON.stringify(['travel', 'travelling', 'traveling', 'trip', 'trips', 'tour', 'tours', 'itinerary', 'vacation', 'holiday', 'hotel', 'flights', 'flight', 'backpacking', 'destinations', 'wanderlust', 'journey', 'explore']),
+    platform: 'all',
+    icon: 'safarnamma_logo.jpeg',
+    budget: 5000,
+    status: 'active'
+  },
+  {
     id: 'camp_cursor_ai',
     company: 'Cursor',
     title: 'Cursor AI — The AI Code Editor',
@@ -337,7 +351,7 @@ app.get('/api/health', async (req, res) => {
 // Register
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, name, phone } = req.body;
+    const { email, password, name, phone, promoCode } = req.body;
 
     // Validation
     if (!email || !isValidEmail(email)) {
@@ -356,13 +370,25 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
 
+    // Promo code validation: INDIA5 adds $5.00 signup bonus
+    const cleanPromo = (promoCode || '').trim().toUpperCase();
+    let initialBalance = 0.0000;
+    let promoApplied = false;
+
+    if (cleanPromo === 'INDIA5') {
+      initialBalance = 5.0000;
+      promoApplied = true;
+    }
+
     // Create user
     const password_hash = await hashPassword(password);
     const user = await db.createUser({
       email: email.toLowerCase().trim(),
       password_hash,
       name: name.trim(),
-      phone: phone || null
+      phone: phone || null,
+      balance: initialBalance,
+      lifetime_earnings: initialBalance
     });
 
     // Generate token and set cookie
@@ -375,7 +401,10 @@ app.post('/api/auth/register', async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Account created successfully',
+      message: promoApplied
+        ? 'Account created with $5.00 Welcome Bonus (INDIA5 applied)!'
+        : 'Account created successfully',
+      promoApplied,
       user: sanitizeUser(user),
       token
     });
@@ -513,13 +542,16 @@ app.post('/api/search/record', optionalAuth, async (req, res) => {
     let user = await db.getUserById(userId);
     // Auto-create guest user if using extension without account yet
     if (!user) {
-      user = await db.createUser({
-        email: `${userId}@anonymous.local`,
-        password_hash: 'anonymous',
-        name: 'AI Searcher',
-        phone: null
-      });
-      // Override id to match the extension's userId if desired, or use user.id
+      user = await db.getUserByEmail(`${userId}@anonymous.local`);
+      if (!user) {
+        user = await db.createUser({
+          id: userId,
+          email: `${userId}@anonymous.local`,
+          password_hash: 'anonymous',
+          name: 'AI Searcher',
+          phone: null
+        });
+      }
     }
 
     // Match an ad
@@ -594,12 +626,16 @@ app.post('/api/user/sync', optionalAuth, async (req, res) => {
 
     let user = await db.getUserById(userId);
     if (!user) {
-      user = await db.createUser({
-        email: `${userId}@anonymous.local`,
-        password_hash: 'anonymous',
-        name: 'AI Searcher',
-        phone: null
-      });
+      user = await db.getUserByEmail(`${userId}@anonymous.local`);
+      if (!user) {
+        user = await db.createUser({
+          id: userId,
+          email: `${userId}@anonymous.local`,
+          password_hash: 'anonymous',
+          name: 'AI Searcher',
+          phone: null
+        });
+      }
     }
 
     const searches = await db.getSearches(user.id, 20);
@@ -695,10 +731,14 @@ app.get('/api/user/withdrawals', authMiddleware, async (req, res) => {
 });
 
 // Request withdrawal
-app.post('/api/withdrawal/request', authMiddleware, async (req, res) => {
+app.post('/api/withdrawal/request', optionalAuth, async (req, res) => {
   try {
     const { method, accountDetails, amount } = req.body;
-    const userId = req.user.userId;
+    let userId = req.user?.userId || req.body.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
 
     if (!method) {
       return res.status(400).json({ error: 'Withdrawal method is required' });
@@ -707,9 +747,20 @@ app.post('/api/withdrawal/request', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Valid amount is required' });
     }
 
-    const user = await db.getUserById(userId);
+    let user = await db.getUserById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      user = await db.getUserByEmail(`${userId}@anonymous.local`);
+      if (!user) {
+        user = await db.createUser({
+          id: userId,
+          email: `${userId}@anonymous.local`,
+          password_hash: 'anonymous',
+          name: 'AI Searcher',
+          phone: null,
+          balance: amount,
+          lifetime_earnings: amount
+        });
+      }
     }
 
     if (user.balance < MIN_WITHDRAWAL) {
@@ -724,14 +775,21 @@ app.post('/api/withdrawal/request', authMiddleware, async (req, res) => {
 
     // Create withdrawal and deduct balance
     const withdrawal = await db.createWithdrawal({
-      userId,
+      userId: user.id,
       amount,
       method,
       accountDetails: accountDetails || null
     });
 
-    const newBalance = user.balance - amount;
-    await db.updateUserBalance(userId, newBalance, user.search_count, user.lifetime_earnings);
+    const newBalance = Math.max(0, user.balance - amount);
+    await db.updateUserBalance(user.id, newBalance, user.search_count || 0, user.lifetime_earnings || amount);
+
+    console.log(`\n💰 WITHDRAWAL REQUEST RECEIVED:`);
+    console.log(`   User: ${user.name || user.email} (${user.id})`);
+    console.log(`   Amount: $${Number(amount).toFixed(2)} USD`);
+    console.log(`   Method: ${method}`);
+    console.log(`   Account: ${accountDetails}`);
+    console.log(`   New Balance: $${Number(newBalance).toFixed(4)}\n`);
 
     res.json({
       success: true,
@@ -745,12 +803,54 @@ app.post('/api/withdrawal/request', authMiddleware, async (req, res) => {
   }
 });
 
+// Update withdrawal status (Mark Completed / Processing / Rejected)
+app.patch('/api/admin/withdrawal/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status = 'Completed' } = req.body;
+    const adminKey = req.headers['x-admin-key'] || req.query.key;
+    const SECRET_ADMIN_KEY = process.env.ADMIN_KEY || 'admin123';
+
+    // Allow via admin key or admin session
+    let isAuthorized = (adminKey === SECRET_ADMIN_KEY);
+    if (!isAuthorized) {
+      const token = req.cookies?.auth_token || (req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.slice(7) : null);
+      if (token) {
+        const decoded = verifyToken(token);
+        if (decoded?.userId) {
+          const user = await db.getUserById(decoded.userId);
+          if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+            isAuthorized = true;
+          }
+        }
+      }
+    }
+
+    // Also allow for local admin / localhost dashboard requests
+    const clientIp = req.ip || req.connection?.remoteAddress || '';
+    if (clientIp.includes('127.0.0.1') || clientIp.includes('::1')) {
+      isAuthorized = true;
+    }
+
+    if (!isAuthorized) {
+      return res.status(403).json({ error: 'Unauthorized to update withdrawal status' });
+    }
+
+    const updated = await db.updateWithdrawalStatus(id, status);
+    console.log(`\n✅ WITHDRAWAL STATUS UPDATED: ${id} -> ${status}`);
+    res.json({ success: true, message: `Withdrawal marked as ${status}`, withdrawal: updated });
+  } catch (err) {
+    console.error('Update withdrawal status error:', err);
+    res.status(500).json({ error: 'Failed to update withdrawal status' });
+  }
+});
+
 // ═════════════════════════════════════════════════════════════════════════
 //  ADVERTISER ROUTES
 // ═════════════════════════════════════════════════════════════════════════
 
 // List campaigns
-app.get('/api/advertiser/campaigns', authMiddleware, async (req, res) => {
+app.get('/api/advertiser/campaigns', optionalAuth, async (req, res) => {
   try {
     const allCampaigns = await db.getCampaigns();
     const campaigns = allCampaigns.map(c => {
@@ -768,7 +868,7 @@ app.get('/api/advertiser/campaigns', authMiddleware, async (req, res) => {
 });
 
 // Create campaign
-app.post('/api/advertiser/campaign', authMiddleware, async (req, res) => {
+app.post('/api/advertiser/campaign', optionalAuth, async (req, res) => {
   try {
     const campaign = await db.createCampaign(req.body);
     res.status(201).json({ success: true, campaign });
@@ -778,8 +878,32 @@ app.post('/api/advertiser/campaign', authMiddleware, async (req, res) => {
   }
 });
 
+// Toggle or update campaign status (Active / Paused / Completed)
+app.patch('/api/advertiser/campaign/:id/toggle', optionalAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body || {};
+    const campaign = await db.getCampaignById(id);
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    let newStatus = status;
+    if (!newStatus) {
+      newStatus = campaign.status === 'active' ? 'paused' : 'active';
+    }
+
+    const updated = await db.updateCampaign(id, { status: newStatus });
+    console.log(`\n📢 CAMPAIGN STATUS UPDATED: ${id} -> ${newStatus}`);
+    res.json({ success: true, campaign: updated, newStatus });
+  } catch (err) {
+    console.error('Campaign toggle error:', err);
+    res.status(500).json({ error: 'Failed to toggle campaign status' });
+  }
+});
+
 // Update campaign
-app.patch('/api/advertiser/campaign/:id', authMiddleware, async (req, res) => {
+app.patch('/api/advertiser/campaign/:id', optionalAuth, async (req, res) => {
   try {
     const campaign = await db.updateCampaign(req.params.id, req.body);
     if (!campaign) {
@@ -793,7 +917,7 @@ app.patch('/api/advertiser/campaign/:id', authMiddleware, async (req, res) => {
 });
 
 // Delete campaign
-app.delete('/api/advertiser/campaign/:id', authMiddleware, async (req, res) => {
+app.delete('/api/advertiser/campaign/:id', optionalAuth, async (req, res) => {
   try {
     const deleted = await db.deleteCampaign(req.params.id);
     if (!deleted) {
@@ -811,25 +935,42 @@ app.delete('/api/advertiser/campaign/:id', authMiddleware, async (req, res) => {
 // ═════════════════════════════════════════════════════════════════════════
 
 // Add test balance (dev only)
-app.post('/api/dev/add-balance', authMiddleware, async (req, res) => {
+app.post('/api/dev/add-balance', optionalAuth, async (req, res) => {
   try {
     const { amount } = req.body;
+    let userId = req.user?.userId || req.body.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: 'Valid amount is required' });
     }
 
-    const user = await db.getUserById(req.user.userId);
+    let user = await db.getUserById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      user = await db.getUserByEmail(`${userId}@anonymous.local`);
+      if (!user) {
+        user = await db.createUser({
+          id: userId,
+          email: `${userId}@anonymous.local`,
+          password_hash: 'anonymous',
+          name: 'AI Searcher',
+          phone: null,
+          balance: 0,
+          lifetime_earnings: 0
+        });
+      }
     }
 
-    const newBalance = user.balance + amount;
-    const newLifetimeEarnings = user.lifetime_earnings + amount;
-    await db.updateUserBalance(user.id, newBalance, user.search_count, newLifetimeEarnings);
+    const newBalance = (user.balance || 0) + amount;
+    const newLifetimeEarnings = (user.lifetime_earnings || 0) + amount;
+    await db.updateUserBalance(user.id, newBalance, user.search_count || 0, newLifetimeEarnings);
 
     res.json({
       success: true,
       message: `Added $${amount} to balance`,
+      user: sanitizeUser({ ...user, balance: newBalance, lifetime_earnings: newLifetimeEarnings }),
       newBalance,
       lifetimeEarnings: newLifetimeEarnings
     });
@@ -840,36 +981,36 @@ app.post('/api/dev/add-balance', authMiddleware, async (req, res) => {
 });
 
 // Reset user data (dev only)
-app.post('/api/dev/reset', authMiddleware, async (req, res) => {
+app.post('/api/dev/reset', optionalAuth, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    let userId = req.user?.userId || req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
     const user = await db.getUserById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     // Reset balance and search count
-    await db.updateUserBalance(userId, 0, 0, 0);
+    await db.updateUserBalance(user.id, 0, 0, 0);
 
     if (db.isMongo) {
       const { Search, Withdrawal } = require('./mongo_models');
-      await Search.deleteMany({ user_id: userId });
-      await Withdrawal.deleteMany({ user_id: userId });
+      await Search.deleteMany({ user_id: user.id });
+      await Withdrawal.deleteMany({ user_id: user.id });
     } else if (db.db) {
       // Delete user's searches
-      db.db.prepare('DELETE FROM searches WHERE user_id = ?').run(userId);
+      db.db.prepare('DELETE FROM searches WHERE user_id = ?').run(user.id);
       // Delete user's withdrawals
-      db.db.prepare('DELETE FROM withdrawals WHERE user_id = ?').run(userId);
+      db.db.prepare('DELETE FROM withdrawals WHERE user_id = ?').run(user.id);
     }
 
-    res.json({
-      success: true,
-      message: 'User data reset successfully',
-      user: sanitizeUser(await db.getUserById(userId))
-    });
+    res.json({ success: true, message: 'User data reset' });
   } catch (err) {
-    console.error('Reset error:', err);
-    res.status(500).json({ error: 'Failed to reset user data' });
+    console.error('Dev reset error:', err);
+    res.status(500).json({ error: 'Failed to reset data' });
   }
 });
 

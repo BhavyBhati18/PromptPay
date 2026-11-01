@@ -161,9 +161,18 @@
     banner.className = "ai-ads-inline-banner";
     banner.setAttribute("data-ai-ads", "true");
 
+    let iconHtml = `<span class="ai-ads-inline-icon">${ad.icon || "🚀"}</span>`;
+    if (ad.icon && (ad.icon.startsWith("data:") || ad.icon.includes("/") || ad.icon.includes(".jpeg") || ad.icon.includes(".jpg") || ad.icon.includes(".png"))) {
+      let iconSrc = ad.icon;
+      if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.getURL && !iconSrc.startsWith("data:") && !iconSrc.startsWith("http")) {
+        iconSrc = chrome.runtime.getURL(iconSrc);
+      }
+      iconHtml = `<img src="${iconSrc}" class="ai-ads-inline-logo" alt="${ad.company || 'Ad'}" style="width:20px;height:20px;border-radius:4px;object-fit:cover;vertical-align:middle;margin-right:6px;" />`;
+    }
+
     banner.innerHTML = `
       <span class="ai-ads-inline-badge">Ad</span>
-      <span class="ai-ads-inline-icon">${ad.icon || "🚀"}</span>
+      ${iconHtml}
       <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="ai-ads-inline-title">${ad.title}</a>
       <span class="ai-ads-inline-sep">·</span>
       <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="ai-ads-inline-cta">${ad.cta || "Learn More"} →</a>

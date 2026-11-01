@@ -5,6 +5,24 @@
 
 const DEFAULT_CAMPAIGNS = [
   {
+    id: "ad-safarnamma",
+    company: "Safarnamma",
+    title: "Safarnamma - Curated Group Trips & Backpacking Journeys",
+    description: "Discover offbeat destinations, community backpacking adventures, and boutique group travel across the world.",
+    cta: "Explore Trips",
+    url: "https://safarnamma.com",
+    category: "Travel & Hospitality",
+    keywords: ["travel", "travelling", "traveling", "trip", "tour", "itinerary", "vacation", "holiday", "hotel", "flights", "flight", "backpacking", "destinations", "wanderlust", "journey", "explore"],
+    platform: "all",
+    icon: "safarnamma_logo.jpeg",
+    impressions: 0,
+    clicks: 0,
+    budget: 100.00,
+    spent: 0.00,
+    status: "active",
+    createdAt: new Date().toISOString()
+  },
+  {
     id: "ad-cursor-ai",
     company: "Cursor AI",
     title: "Code at the Speed of Thought",

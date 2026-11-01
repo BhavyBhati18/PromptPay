@@ -6,37 +6,51 @@
 
 importScripts("ad_engine.js");
 
-const API_BASE = "https://promptpay-api-zzao.onrender.com/api";
+// Endpoints to try: local server first (for instant local testing), then production Render
+const API_ENDPOINTS = [
+  "http://localhost:3000/api",
+  "https://promptpay-api-zzao.onrender.com/api"
+];
 const REWARD_PER_SEARCH = 0.0003;
 const MIN_WITHDRAWAL_AMOUNT = 10.00;
 
 /**
- * Generic API client with timeout and fallback
+ * Generic API client with automatic fallback across local & remote servers
  */
 async function apiFetch(endpoint, method = "GET", data = null) {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
+  const stored = await chrome.storage.local.get(["authToken"]);
+  const token = stored.authToken || null;
 
-    const options = {
-      method,
-      headers: { "Content-Type": "application/json" },
-      signal: controller.signal
-    };
-    if (data) options.body = JSON.stringify(data);
-
-    const res = await fetch(`${API_BASE}${endpoint}`, options);
-    clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error || `HTTP error ${res.status}`);
-    }
-    return await res.json();
-  } catch (err) {
-    console.warn(`[AI Search Ads API] ${method} ${endpoint} unreachable:`, err.message);
-    return null;
+  const headers = { "Content-Type": "application/json" };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
+
+  for (const base of API_ENDPOINTS) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+      const options = {
+        method,
+        headers,
+        signal: controller.signal
+      };
+      if (data) options.body = JSON.stringify(data);
+
+      const res = await fetch(`${base}${endpoint}`, options);
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      // Try next endpoint in array
+    }
+  }
+
+  console.warn(`[AI Search Ads API] ${method} ${endpoint} unreachable on all endpoints`);
+  return null;
 }
 
 /**
@@ -149,32 +163,8 @@ async function handleRecordSearch({ query, platform }) {
   const stored = await chrome.storage.local.get(["authToken"]);
   const token = stored.authToken || null;
 
-  // Attempt backend API call with token if available
-  const headers = token ? { "Authorization": `Bearer ${token}` } : {};
-  
-  let remoteRes = null;
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-    const options = {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        ...(token ? { "Authorization": `Bearer ${token}` } : {})
-      },
-      body: JSON.stringify({ userId, query, platform }),
-      signal: controller.signal
-    };
-
-    const res = await fetch(`${API_BASE}/search/record`, options);
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      remoteRes = await res.json();
-    }
-  } catch (err) {
-    console.warn("[AI Search Ads API] Remote record failed, using fallback:", err.message);
-  }
+  // Attempt backend API call (tries local first, then remote)
+  let remoteRes = await apiFetch("/search/record", "POST", { userId, query, platform });
 
   if (remoteRes && remoteRes.success) {
     // Backend recorded successfully! Update local cache
@@ -441,16 +431,18 @@ async function handleSaveCampaign(campaign) {
 /**
  * Toggles an ad campaign active/paused
  */
-async function handleToggleCampaignStatus({ id }) {
-  apiFetch(`/advertiser/campaign/${id}/toggle`, "PATCH");
+async function handleToggleCampaignStatus({ id, status }) {
+  apiFetch(`/advertiser/campaign/${id}/toggle`, "PATCH", status ? { status } : {});
 
   const data = await chrome.storage.local.get(["campaigns"]);
   let campaigns = data.campaigns || [];
-  let updatedStatus = "active";
+  let updatedStatus = status || "active";
 
   campaigns = campaigns.map(c => {
     if (c.id === id) {
-      updatedStatus = c.status === "active" ? "paused" : "active";
+      if (!status) {
+        updatedStatus = c.status === "active" ? "paused" : "active";
+      }
       return { ...c, status: updatedStatus };
     }
     return c;

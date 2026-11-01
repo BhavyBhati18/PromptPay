@@ -1,249 +1,380 @@
 import os
 from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether, HRFlowable
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib import colors
-from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
 
-pdf_path = os.path.join(os.path.dirname(__file__), "PayGpt_Business_and_Revenue_Model.pdf")
-doc = SimpleDocTemplate(
-    pdf_path,
-    pagesize=letter,
-    leftMargin=40,
-    rightMargin=40,
-    topMargin=40,
-    bottomMargin=40
-)
-
-styles = getSampleStyleSheet()
-
-# Custom styles
-title_style = ParagraphStyle(
-    'DocTitle',
-    parent=styles['Heading1'],
-    fontName='Helvetica-Bold',
-    fontSize=24,
-    leading=28,
-    textColor=colors.HexColor('#0F172A'),
-    alignment=1
-)
-
-subtitle_style = ParagraphStyle(
-    'DocSubTitle',
-    parent=styles['Normal'],
-    fontName='Helvetica',
-    fontSize=11,
-    leading=15,
-    textColor=colors.HexColor('#475569'),
-    alignment=1
-)
-
-h1_style = ParagraphStyle(
-    'SectionH1',
-    parent=styles['Heading2'],
-    fontName='Helvetica-Bold',
-    fontSize=14,
-    leading=18,
-    textColor=colors.HexColor('#0284C7'),
-    spaceBefore=14,
-    spaceAfter=6
-)
-
-h2_style = ParagraphStyle(
-    'SectionH2',
-    parent=styles['Heading3'],
-    fontName='Helvetica-Bold',
-    fontSize=11,
-    leading=14,
-    textColor=colors.HexColor('#0F172A'),
-    spaceBefore=8,
-    spaceAfter=4
-)
-
-body_style = ParagraphStyle(
-    'BodyDark',
-    parent=styles['Normal'],
-    fontName='Helvetica',
-    fontSize=9,
-    leading=13,
-    textColor=colors.HexColor('#1E293B'),
-    spaceAfter=6
-)
-
-bullet_style = ParagraphStyle(
-    'BulletText',
-    parent=styles['Normal'],
-    fontName='Helvetica',
-    fontSize=8.5,
-    leading=12,
-    textColor=colors.HexColor('#334155'),
-    leftIndent=12,
-    spaceAfter=3
-)
-
-callout_style = ParagraphStyle(
-    'CalloutText',
-    parent=styles['Normal'],
-    fontName='Helvetica-Bold',
-    fontSize=9.5,
-    leading=13.5,
-    textColor=colors.HexColor('#0369A1'),
-    alignment=1
-)
-
-elements = []
-
-# Title Section
-elements.append(Paragraph("PAYGPT TECHNOLOGIES INC.", ParagraphStyle('Brand', fontName='Helvetica-Bold', fontSize=10, textColor=colors.HexColor('#0284C7'), alignment=1)))
-elements.append(Spacer(1, 4))
-elements.append(Paragraph("Complete Business & Revenue Model Blueprint", title_style))
-elements.append(Spacer(1, 4))
-elements.append(Paragraph("Monetizing the Generative AI Search Layer with High-Intent Sponsored Recommendations", subtitle_style))
-elements.append(Spacer(1, 10))
-elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#0284C7'), spaceBefore=2, spaceAfter=14))
-
-# 1. Executive Summary
-elements.append(Paragraph("1. Executive Summary", h1_style))
-elements.append(Paragraph(
-    "<b>PayGpt</b> is a browser extension and adtech platform that turns millions of daily queries on OpenAI ChatGPT "
-    "and Google Gemini into a non-intrusive, contextual advertising marketplace. By giving users a micro-incentive "
-    "($0.0003 per search) and presenting ultra-targeted sponsored tools above AI answers, PayGpt achieves an unprecedented "
-    "<b>94%+ gross margin</b> while solving the primary pain point of traditional search ads: user fatigue and low relevancy.",
-    body_style
-))
-
-# 2. Market Opportunity
-elements.append(Paragraph("2. The Market Disruption: Why AI Search Ads?", h1_style))
-elements.append(Paragraph(
-    "Over 1.8 billion prompts are executed daily across ChatGPT and Google Gemini. Users are no longer scrolling "
-    "through 10 blue links on Google. Instead, they ask conversational questions with clear commercial intent "
-    "(e.g., <i>'How do I host a PostgreSQL database?'</i> or <i>'Best email outreach software for SaaS'</i>). "
-    "However, existing AI engines offer zero direct ad real estate. PayGpt bridges this multi-billion dollar gap "
-    "through a client-side injection layer.",
-    body_style
-))
-
-# 3. Unit Economics
-elements.append(Paragraph("3. Unit Economics & Profit Margins", h1_style))
-elements.append(Paragraph(
-    "The core financial advantage of PayGpt lies in the spread between user payout ($0.0003 per prompt) and commercial B2B advertising rates ($6.00 CPM or $0.75 CPC).",
-    body_style
-))
-
-unit_table_data = [
-    [Paragraph("<b>Metric</b>", body_style), Paragraph("<b>Per 1 Prompt</b>", body_style), Paragraph("<b>Per 1,000 Prompts (CPM)</b>", body_style), Paragraph("<b>Per 100,000 Prompts</b>", body_style), Paragraph("<b>Profit Margin</b>", body_style)],
-    [Paragraph("Advertiser Revenue (CPM)", body_style), Paragraph("$0.0060", body_style), Paragraph("$6.00", body_style), Paragraph("$600.00", body_style), Paragraph("100%", body_style)],
-    [Paragraph("User Incentive Payout", body_style), Paragraph("$0.0003", body_style), Paragraph("$0.30", body_style), Paragraph("$30.00", body_style), Paragraph("5.0%", body_style)],
-    [Paragraph("Platform Gross Profit", body_style), Paragraph("<b>$0.0057</b>", body_style), Paragraph("<b>$5.70</b>", body_style), Paragraph("<b>$570.00</b>", body_style), Paragraph("<b>95.0%</b>", body_style)]
+data = [
+    {
+        "category": "Category 1: AI Code & Developer Tools",
+        "user_queries": 'Users constantly ask ChatGPT/Gemini: "Write this React component", "Fix this Docker bug", "Python API script".',
+        "tools": [
+            {
+                "name": "ShipFast (Marc Lou)",
+                "url": "https://shipfa.st",
+                "what": "Next.js AI boilerplate for solopreneurs.",
+                "keywords": "build saas, nextjs template, stripe integration, auth boilerplate",
+                "why": "Solo founder who spends aggressively on distribution and loves novel ad channels."
+            },
+            {
+                "name": "Supastarter",
+                "url": "https://supastarter.dev",
+                "what": "Production-ready SaaS starter kits with Supabase & Prisma.",
+                "keywords": "supabase react, saas boilerplate, prisma database setup",
+                "why": ""
+            },
+            {
+                "name": "v0 by Vercel / indie UI alternatives (21st.dev)",
+                "url": "https://21st.dev",
+                "what": "Open-source library of production UI components built for AI prompts.",
+                "keywords": "tailwind components, shadcn ui, react navbar design",
+                "why": ""
+            },
+            {
+                "name": "Kapa.ai",
+                "url": "https://kapa.ai",
+                "what": "AI support bots trained on technical developer docs and GitHub repos.",
+                "keywords": "developer documentation bot, rag documentation, github support ai",
+                "why": ""
+            },
+            {
+                "name": "Aider / OpenHands",
+                "url": "",
+                "what": "Terminal AI coding companions (or indie UI clients for them).",
+                "keywords": "terminal ai, command line copilot, git auto commit ai",
+                "why": ""
+            }
+        ]
+    },
+    {
+        "category": "Category 2: AI Writing, SEO & Content Generators",
+        "user_queries": 'Users constantly ask ChatGPT/Gemini: "Write an SEO blog post", "Help me rewrite this email", "Generate LinkedIn hook".',
+        "tools": [
+            {
+                "name": "Writesonic / Chatsonic (or Katteb)",
+                "url": "https://katteb.com",
+                "what": "Fact-checked AI blog and article writer for SEO marketers.",
+                "keywords": "write blog post, seo content, article writer, humanize ai text",
+                "why": ""
+            },
+            {
+                "name": "TweetHunter / Taplio (or Postwise.ai)",
+                "url": "https://postwise.ai",
+                "what": "AI tweet & LinkedIn post writer and scheduler.",
+                "keywords": "linkedin content, twitter growth, viral post ideas",
+                "why": ""
+            },
+            {
+                "name": "Undetectable AI",
+                "url": "https://undetectable.ai",
+                "what": "Rewrites AI text to pass AI detectors (Turnitin, GPTZero).",
+                "keywords": "bypass turnitin, ai detector check, humanize gpt",
+                "why": ""
+            },
+            {
+                "name": "SEOWriting.ai",
+                "url": "https://seowriting.ai",
+                "what": "1-click bulk SEO article creator for affiliate niche sites.",
+                "keywords": "bulk seo, amazon affiliate article, niche site content",
+                "why": ""
+            },
+            {
+                "name": "Rytr",
+                "url": "https://rytr.me",
+                "what": "Lightweight AI writing assistant with affordable monthly plans.",
+                "keywords": "copywriting templates, email pitch generator, catchy slogans",
+                "why": ""
+            }
+        ]
+    },
+    {
+        "category": "Category 3: AI Resume & Career Prep Tools",
+        "user_queries": 'Users constantly ask ChatGPT/Gemini: "Review my resume", "Prepare for interview", "Write a cover letter".',
+        "tools": [
+            {
+                "name": "Kickresume",
+                "url": "https://kickresume.com",
+                "what": "AI resume builder and ATS checker.",
+                "keywords": "resume bullet points, ats resume template, software engineer cv",
+                "why": ""
+            },
+            {
+                "name": "Teal",
+                "url": "https://tealhq.com",
+                "what": "AI job application tracker and resume optimizer.",
+                "keywords": "job search tracker, optimize resume for job, linkedin recruiter message",
+                "why": ""
+            },
+            {
+                "name": "Final Round AI",
+                "url": "https://finalroundai.com",
+                "what": "Real-time AI copilot for mock and live job interviews.",
+                "keywords": "interview preparation, behavioral interview questions, system design interview",
+                "why": ""
+            },
+            {
+                "name": "LoopCV",
+                "url": "https://loopcv.pro",
+                "what": "Fully automated job application bot for job seekers.",
+                "keywords": "apply to jobs automatically, cold email hiring managers",
+                "why": ""
+            }
+        ]
+    },
+    {
+        "category": "Category 4: AI Design, Visuals & Productivity",
+        "user_queries": 'Users constantly ask ChatGPT/Gemini: "Make a logo", "Presentation outline", "Summarize this PDF".',
+        "tools": [
+            {
+                "name": "Gamma App / Presentations.AI",
+                "url": "https://presentations.ai",
+                "what": "AI slide deck and presentation builder from prompt outlines.",
+                "keywords": "pitch deck outline, powerpoint slides ai, presentation design",
+                "why": ""
+            },
+            {
+                "name": "Looka",
+                "url": "https://looka.com",
+                "what": "AI logo and brand kit generator for new companies.",
+                "keywords": "startup logo ideas, brand identity design, color palette for tech company",
+                "why": ""
+            },
+            {
+                "name": "ChatPDF",
+                "url": "https://chatpdf.com",
+                "what": "Read and ask questions to research papers, legal contracts, and textbooks.",
+                "keywords": "summarize pdf, extract table from pdf, study guide textbook",
+                "why": ""
+            },
+            {
+                "name": "Glasp",
+                "url": "https://glasp.co",
+                "what": "Social web highlighter and YouTube video AI summarizer.",
+                "keywords": "summarize youtube video, highlight web articles, kindle notes export",
+                "why": ""
+            },
+            {
+                "name": "AudioPen",
+                "url": "https://audiopen.ai",
+                "what": "Turns rambling voice memos into structured, clear text notes.",
+                "keywords": "voice memo notes, transcribe audio, meeting minutes summary",
+                "why": ""
+            },
+            {
+                "name": "Tome / Decktopus",
+                "url": "https://decktopus.com",
+                "what": "Instant lead-generation micro-presentations for sales reps.",
+                "keywords": "sales deck template, one pager proposal, client pitch document",
+                "why": ""
+            }
+        ]
+    }
 ]
 
-t1 = Table(unit_table_data, colWidths=[1.8*inch, 1.1*inch, 1.4*inch, 1.4*inch, 1.0*inch])
-t1.setStyle(TableStyle([
-    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F1F5F9')),
-    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
-    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-    ('TOPPADDING', (0, 0), (-1, -1), 5),
-    ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor('#E0F2FE')),
-]))
-elements.append(t1)
-elements.append(Spacer(1, 10))
+class NumberedCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        super(NumberedCanvas, self).__init__(*args, **kwargs)
+        self._saved_page_states = []
 
-# 4. Two Advertiser Billing Models
-elements.append(Paragraph("4. Advertiser Pricing Models: CPM vs. CPC", h1_style))
-elements.append(Paragraph(
-    "<b>Model A: Impression Model (CPM - Cost Per 1,000 Views)</b><br/>"
-    "Advertisers pay for verified brand impressions. When a user prompts a keyword matching the advertiser's category, "
-    "their ad banner is displayed. Recommended rate: <b>$5.00 - $8.00 CPM</b>.",
-    body_style
-))
-elements.append(Paragraph(
-    "<b>Model B: Performance Model (CPC - Cost Per Click)</b><br/>"
-    "Advertisers only pay when a user clicks the sponsored link. At an industry-average 2% CTR (20 clicks per 1,000 impressions), "
-    "charging <b>$0.75 per click</b> generates <b>$15.00 revenue per 1,000 queries</b>, boosting net gross margin to <b>98%</b>.",
-    body_style
-))
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
 
-# 5. Standard Packages
-elements.append(Paragraph("5. Ready-to-Sell Advertiser Packages", h1_style))
+    def save(self):
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_decorations(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
 
-pkg_data = [
-    [Paragraph("<b>Package Tier</b>", body_style), Paragraph("<b>Package Price</b>", body_style), Paragraph("<b>Deliverables</b>", body_style), Paragraph("<b>User Cost</b>", body_style), Paragraph("<b>Net Profit</b>", body_style)],
-    [Paragraph("<b>Starter Pilot</b>", body_style), Paragraph("$150", body_style), Paragraph("25,000 Views or ~200 Clicks", body_style), Paragraph("$7.50", body_style), Paragraph("<b>$142.50 (95%)</b>", body_style)],
-    [Paragraph("<b>Growth Tier</b>", body_style), Paragraph("$500", body_style), Paragraph("100,000 Views or ~750 Clicks", body_style), Paragraph("$30.00", body_style), Paragraph("<b>$470.00 (94%)</b>", body_style)],
-    [Paragraph("<b>Scale & Dominate</b>", body_style), Paragraph("$1,500", body_style), Paragraph("350,000 Views + Priority Keywords", body_style), Paragraph("$105.00", body_style), Paragraph("<b>$1,395.00 (93%)</b>", body_style)]
-]
+    def draw_page_decorations(self, page_count):
+        self.saveState()
+        self.setFont("Helvetica", 8)
+        self.setFillColor(colors.HexColor("#718096"))
+        
+        # Header (pages > 1)
+        if self._pageNumber > 1:
+            self.drawString(40, 755, "AI Tools & Search Intent Directory")
+            self.drawRightString(572, 755, "Ad Targeting & Pitch Guide")
+            self.setStrokeColor(colors.HexColor("#E2E8F0"))
+            self.setLineWidth(0.5)
+            self.line(40, 747, 572, 747)
+            
+        # Footer
+        page_text = f"Page {self._pageNumber} of {page_count}"
+        self.drawRightString(572, 28, page_text)
+        self.drawString(40, 28, "Confidential & Proprietary • Compiled for Pitching & Keyword Intent Mapping")
+        self.setStrokeColor(colors.HexColor("#E2E8F0"))
+        self.setLineWidth(0.5)
+        self.line(40, 38, 572, 38)
+        self.restoreState()
 
-t2 = Table(pkg_data, colWidths=[1.5*inch, 1.1*inch, 2.2*inch, 1.0*inch, 1.2*inch])
-t2.setStyle(TableStyle([
-    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F8FAFC')),
-    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
-    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ('TOPPADDING', (0, 0), (-1, -1), 4),
-]))
-elements.append(t2)
-elements.append(Spacer(1, 10))
+def build_pdf(filename="AI_Tools_and_Keywords_Directory.pdf"):
+    doc = SimpleDocTemplate(
+        filename,
+        pagesize=letter,
+        leftMargin=40,
+        rightMargin=40,
+        topMargin=50,
+        bottomMargin=50
+    )
+    
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'DocTitle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#0F172A'),
+        spaceAfter=4
+    )
+    
+    subtitle_style = ParagraphStyle(
+        'DocSubtitle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9.5,
+        leading=14,
+        textColor=colors.HexColor('#475569'),
+        spaceAfter=15
+    )
+    
+    cat_heading = ParagraphStyle(
+        'CategoryHeading',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=12,
+        leading=16,
+        textColor=colors.HexColor('#1E293B'),
+    )
+    
+    cat_sub = ParagraphStyle(
+        'CategorySub',
+        parent=styles['Normal'],
+        fontName='Helvetica-Oblique',
+        fontSize=8.5,
+        leading=12,
+        textColor=colors.HexColor('#334155'),
+        spaceAfter=6
+    )
+    
+    tool_title = ParagraphStyle(
+        'ToolTitle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=9.5,
+        leading=12,
+        textColor=colors.HexColor('#0F172A')
+    )
+    
+    url_style = ParagraphStyle(
+        'UrlStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor('#2563EB')
+    )
+    
+    body_style = ParagraphStyle(
+        'BodyDark',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=8.5,
+        leading=11.5,
+        textColor=colors.HexColor('#334155')
+    )
+    
+    kw_label = ParagraphStyle(
+        'KwLabel',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor('#0369A1')
+    )
+    
+    kw_text = ParagraphStyle(
+        'KwText',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=8,
+        leading=10.5,
+        textColor=colors.HexColor('#0284C7')
+    )
 
-elements.append(PageBreak())
+    story = []
+    
+    # Title & Subtitle banner
+    story.append(Paragraph("AI Tools & High-Intent Search Directory", title_style))
+    story.append(Paragraph("A strategic reference mapping user search prompts (ChatGPT/Gemini) to niche AI products, relevant target keywords, and ad/distribution pitch angles.", subtitle_style))
+    story.append(Spacer(1, 4))
+    
+    for c_idx, cat in enumerate(data):
+        # Category Banner Card
+        banner_content = [
+            [Paragraph(f"<b>{cat['category']}</b>", cat_heading)],
+            [Paragraph(f"<b>User Search Prompts:</b> {cat['user_queries']}", cat_sub)]
+        ]
+        banner_table = Table(banner_content, colWidths=[532])
+        banner_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F1F5F9')),
+            ('LEFTPADDING', (0,0), (-1,-1), 10),
+            ('RIGHTPADDING', (0,0), (-1,-1), 10),
+            ('TOPPADDING', (0,0), (-1,0), 7),
+            ('BOTTOMPADDING', (0,0), (-1,0), 2),
+            ('TOPPADDING', (0,1), (-1,1), 2),
+            ('BOTTOMPADDING', (0,1), (-1,1), 7),
+            ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+            ('LINELEFT', (0,0), (0,-1), 3.5, colors.HexColor('#3B82F6')),
+        ]))
+        
+        story.append(KeepTogether([banner_table, Spacer(1, 6)]))
+        
+        # Tools in category
+        for t_idx, tool in enumerate(cat['tools']):
+            left_parts = [Paragraph(f"<b>{tool['name']}</b>", tool_title)]
+            if tool['url']:
+                left_parts.append(Spacer(1, 2))
+                left_parts.append(Paragraph(f'<font color="#2563EB"><u>{tool["url"]}</u></font>', url_style))
+            
+            right_parts = [
+                Paragraph(f"<b>What they do:</b> {tool['what']}", body_style),
+                Spacer(1, 3),
+                Paragraph(f"<b>Target Keywords:</b> <i>{tool['keywords']}</i>", kw_text)
+            ]
+            
+            if tool.get('why'):
+                right_parts.append(Spacer(1, 3))
+                right_parts.append(Paragraph(f"<b>Why pitch:</b> {tool['why']}", body_style))
+            
+            row_data = [[left_parts, right_parts]]
+            row_table = Table(row_data, colWidths=[170, 362])
+            
+            bg_color = colors.HexColor('#FFFFFF') if t_idx % 2 == 0 else colors.HexColor('#F8FAFC')
+            row_table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,-1), bg_color),
+                ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                ('LEFTPADDING', (0,0), (-1,-1), 8),
+                ('RIGHTPADDING', (0,0), (-1,-1), 8),
+                ('TOPPADDING', (0,0), (-1,-1), 6),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+                ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#E2E8F0')),
+                ('LINEBEFORE', (1,0), (1,-1), 0.5, colors.HexColor('#E2E8F0')),
+            ]))
+            
+            story.append(KeepTogether([row_table, Spacer(1, 4)]))
+            
+        story.append(Spacer(1, 8))
+        
+    doc.build(story, canvasmaker=NumberedCanvas)
+    print("PDF build successful.")
 
-# Page 2
-elements.append(Paragraph("6. How Ads are Displayed (The Technical Mechanism)", h1_style))
-elements.append(Paragraph(
-    "1. <b>Real-Time Keyword Detection:</b> When the user submits a prompt on ChatGPT or Google Gemini, the content script extracts the intent tokens.<br/>"
-    "2. <b>Instant Server Auction / Match:</b> The client sends an asynchronous verification ping to <code>/api/search/record</code>.<br/>"
-    "3. <b>Zero-Flicker Native Injection:</b> A lightweight, glassmorphic single-line recommendation bar is mounted above the AI answer.<br/>"
-    "4. <b>Fraud Prevention & Throttling:</b> Minimum intervals (5 seconds), query deduplication, and bot heuristics prevent abusive repeat prompts.<br/>"
-    "5. <b>Safe User Payouts:</b> Payout requests are subjected to a $5.00 threshold with manual or batch admin review via <code>/api/admin/database</code>.",
-    body_style
-))
-
-# 7. Financial Projections
-elements.append(Paragraph("7. 3-Year Scaled Financial Projections", h1_style))
-
-proj_data = [
-    [Paragraph("<b>Milestone</b>", body_style), Paragraph("<b>Active Users</b>", body_style), Paragraph("<b>Monthly Prompts</b>", body_style), Paragraph("<b>Gross Ad Revenue</b>", body_style), Paragraph("<b>User Payouts</b>", body_style), Paragraph("<b>Net Monthly Margin</b>", body_style)],
-    [Paragraph("Month 3 (Pilot)", body_style), Paragraph("2,500", body_style), Paragraph("1,500,000", body_style), Paragraph("$9,000", body_style), Paragraph("$450", body_style), Paragraph("<b>$8,550</b>", body_style)],
-    [Paragraph("Month 12 (Scale)", body_style), Paragraph("25,000", body_style), Paragraph("15,000,000", body_style), Paragraph("$90,000", body_style), Paragraph("$4,500", body_style), Paragraph("<b>$85,500</b>", body_style)],
-    [Paragraph("Month 24 (Expansion)", body_style), Paragraph("100,000", body_style), Paragraph("60,000,000", body_style), Paragraph("$360,000", body_style), Paragraph("$18,000", body_style), Paragraph("<b>$342,000</b>", body_style)]
-]
-
-t3 = Table(proj_data, colWidths=[1.4*inch, 1.0*inch, 1.3*inch, 1.2*inch, 1.0*inch, 1.3*inch])
-t3.setStyle(TableStyle([
-    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0F172A')),
-    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
-    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-    ('TOPPADDING', (0, 0), (-1, -1), 5),
-    ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F8FAFC')),
-]))
-elements.append(t3)
-elements.append(Spacer(1, 14))
-
-# 8. Technology Stack
-elements.append(Paragraph("8. Production Technology Stack", h1_style))
-elements.append(Paragraph(
-    "• <b>Client Layer:</b> Chrome Manifest V3 Extension (Vanilla JS, CSS Isolation, zero framework bloat)<br/>"
-    "• <b>Web & Frontend:</b> Netlify Edge CDN & Vercel deployment with SSL and custom domain routing<br/>"
-    "• <b>API & Engine:</b> Node.js / Express deployed on Render cloud with automated auto-scaling<br/>"
-    "• <b>Database:</b> MongoDB Atlas Cloud Cluster with Mongoose unified fallback architecture<br/>"
-    "• <b>Security:</b> Bcrypt password hashing, JWT stateless authentication, HttpOnly cookies",
-    body_style
-))
-elements.append(Spacer(1, 10))
-
-# 9. Conclusion
-elements.append(Paragraph("9. Strategic Summary", h1_style))
-elements.append(Paragraph(
-    "PayGpt aligns user incentives with advertiser goals. Users are rewarded for everyday AI workflow activities, "
-    "while software companies gain access to the highest-intent moments of tech consumers with unprecedented CTRs. "
-    "With negligible variable hosting costs and 94% unit margins, PayGpt is positioned to become the default monetization "
-    "standard for the conversational AI ecosystem.",
-    body_style
-))
-
-doc.build(elements)
-print(f"Generated PDF: {pdf_path}")
+if __name__ == '__main__':
+    build_pdf()

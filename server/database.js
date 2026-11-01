@@ -95,15 +95,15 @@ class AppDatabase {
 
   // ── User Methods ──────────────────────────────────────────────────────
 
-  createUser({ email, password_hash, name, phone }) {
-    const id = this._generateId('usr');
+  createUser({ id = null, email, password_hash, name, phone, balance = 0, lifetime_earnings = 0 }) {
+    const finalId = id || this._generateId('usr');
     const now = new Date().toISOString();
     const stmt = this.db.prepare(`
-      INSERT INTO users (id, email, password_hash, name, phone, created_at, last_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (id, email, password_hash, name, phone, balance, lifetime_earnings, created_at, last_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    stmt.run(id, email, password_hash, name, phone || null, now, now);
-    return this.getUserById(id);
+    stmt.run(finalId, email, password_hash, name, phone || null, balance, lifetime_earnings, now, now);
+    return this.getUserById(finalId);
   }
 
   getUserByEmail(email) {
@@ -166,6 +166,15 @@ class AppDatabase {
       'SELECT * FROM withdrawals WHERE user_id = ? ORDER BY requested_at DESC'
     );
     return stmt.all(userId);
+  }
+
+  updateWithdrawalStatus(id, status) {
+    const now = new Date().toISOString();
+    const stmt = this.db.prepare(
+      'UPDATE withdrawals SET status = ?, processed_at = ? WHERE id = ?'
+    );
+    stmt.run(status, now, id);
+    return this.db.prepare('SELECT * FROM withdrawals WHERE id = ?').get(id);
   }
 
   // ── Campaign Methods ──────────────────────────────────────────────────

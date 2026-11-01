@@ -221,6 +221,7 @@
               <th>Account Details</th>
               <th>Status</th>
               <th>Date</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="tbody-withdrawals">
@@ -355,19 +356,28 @@
         document.getElementById('count-withdrawals').textContent = data.withdrawals.length;
         const withdrawalsTbody = document.getElementById('tbody-withdrawals');
         if (data.withdrawals.length === 0) {
-          withdrawalsTbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No payout requests yet.</td></tr>';
+          withdrawalsTbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No payout requests yet.</td></tr>';
         } else {
-          withdrawalsTbody.innerHTML = data.withdrawals.map(w => `
-            <tr>
-              <td><code>${escapeHtml(w.id)}</code></td>
-              <td><code>${escapeHtml(w.user_id)}</code></td>
-              <td style="font-weight: 700; color: #fff;">$${Number(w.amount).toFixed(2)}</td>
-              <td><span class="badge-tag badge-blue">${escapeHtml(w.method)}</span></td>
-              <td>${escapeHtml(w.account_details)}</td>
-              <td><span class="badge-tag badge-amber">${escapeHtml(w.status)}</span></td>
-              <td>${w.requested_at ? new Date(w.requested_at).toLocaleDateString() : '-'}</td>
-            </tr>
-          `).join('');
+          withdrawalsTbody.innerHTML = data.withdrawals.map(w => {
+            const isDone = (w.status || '').toLowerCase() === 'completed';
+            const badgeClass = isDone ? 'badge-green' : 'badge-amber';
+            const actionBtn = isDone
+              ? '<span style="color: #10b981; font-size: 0.75rem; font-weight: 700;">✓ Completed</span>'
+              : `<button class="btn-primary-sm" style="padding: 4px 8px; font-size: 0.72rem; background: #10b981; border: none; cursor: pointer;" onclick="markWithdrawalCompleted('${escapeHtml(w.id)}')">Mark Done</button>`;
+
+            return `
+              <tr>
+                <td><code>${escapeHtml(w.id)}</code></td>
+                <td><code>${escapeHtml(w.user_id)}</code></td>
+                <td style="font-weight: 700; color: #fff;">$${Number(w.amount).toFixed(2)}</td>
+                <td><span class="badge-tag badge-blue">${escapeHtml(w.method)}</span></td>
+                <td>${escapeHtml(w.account_details)}</td>
+                <td><span class="badge-tag ${badgeClass}">${escapeHtml(w.status)}</span></td>
+                <td>${w.requested_at ? new Date(w.requested_at).toLocaleDateString() : '-'}</td>
+                <td>${actionBtn}</td>
+              </tr>
+            `;
+          }).join('');
         }
 
         // 4. Render Campaigns
@@ -388,6 +398,28 @@
 
       } catch (err) {
         console.error('Failed to load database data:', err);
+      }
+    }
+
+    async function markWithdrawalCompleted(id) {
+      if (!confirm(`Mark withdrawal ${id} as Completed?`)) return;
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const adminKey = urlParams.get('key') || 'admin123';
+        const res = await fetch(`/api/admin/withdrawal/${id}/status?key=${adminKey}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Completed' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✓ Withdrawal marked as Completed!');
+          loadAllData();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to update'));
+        }
+      } catch (e) {
+        alert('Network error: ' + e.message);
       }
     }
 

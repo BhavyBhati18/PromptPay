@@ -1,10 +1,10 @@
 @echo off
-title AI Search & Earn Server
+title AI Search and Earn Server
 color 0A
 cd /d "%~dp0server"
 
 echo ===================================================
-echo     AI Search & Earn - Backend & Website Server
+echo     AI Search and Earn - Backend and Website Server
 echo ===================================================
 echo.
 echo Server starting at http://localhost:3000

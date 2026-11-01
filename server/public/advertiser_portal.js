@@ -190,6 +190,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const filtered = campaigns.filter(c => {
       if (filter === "active") return c.status === "active";
       if (filter === "paused") return c.status === "paused";
+      if (filter === "completed") return c.status === "completed";
       return true;
     });
 
@@ -209,15 +210,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         : "0.0";
 
       const keywords = (c.keywords || []).map(k => `<span class="keyword-badge">${escapeHtml(k)}</span>`).join("");
-      const statusClass = c.status === "active" ? "active" : "paused";
-      const statusText = c.status === "active" ? "● Active" : "⏸ Paused";
-      const toggleActionText = c.status === "active" ? "Pause" : "Resume";
+      const isCompleted = c.status === "completed";
+      const statusClass = isCompleted ? "completed" : (c.status === "active" ? "active" : "paused");
+      const statusText = isCompleted ? "✓ Completed" : (c.status === "active" ? "● Active" : "⏸ Paused");
+      const toggleActionText = isCompleted ? "Reactivate" : (c.status === "active" ? "Pause" : "Resume");
+      const completeBtnText = isCompleted ? "Re-open" : "Mark Completed";
+
+      const iconMarkup = (c.icon && (c.icon.startsWith("data:") || c.icon.includes("/") || c.icon.includes(".jpeg") || c.icon.includes(".jpg") || c.icon.includes(".png")))
+        ? `<img src="${c.icon}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;" alt="logo" />`
+        : (c.icon || "🚀");
 
       return `
         <div class="ad-campaign-card" data-id="${c.id}">
           <div class="ad-card-top">
             <div class="ad-card-company">
-              <div class="ad-card-icon">${c.icon || "🚀"}</div>
+              <div class="ad-card-icon">${iconMarkup}</div>
               <div class="ad-card-names">
                 <h4>${escapeHtml(c.company)}</h4>
                 <span>${escapeHtml(c.category || "General")} • ${c.platform === "all" ? "ChatGPT & Gemini" : c.platform}</span>
@@ -250,6 +257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           <div class="ad-card-actions">
             <button class="btn-card-action btn-toggle-status" data-id="${c.id}">${toggleActionText}</button>
+            <button class="btn-card-action btn-mark-complete" data-id="${c.id}" data-current="${c.status}" style="color: #10b981;">${completeBtnText}</button>
             <button class="btn-card-action btn-edit-ad" data-id="${c.id}">Edit</button>
             <button class="btn-card-action danger btn-delete-ad" data-id="${c.id}">Delete</button>
           </div>
@@ -272,6 +280,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
           try {
             await chrome.runtime.sendMessage({ action: "TOGGLE_CAMPAIGN_STATUS", payload: { id } });
+          } catch (err) {}
+        }
+        await loadData();
+      });
+    });
+
+    // Mark Campaign Completed / Active
+    document.querySelectorAll(".btn-mark-complete").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+        const current = e.target.dataset.current;
+        const nextStatus = current === "completed" ? "active" : "completed";
+        try {
+          await fetch(`${API_BASE}/advertiser/campaign/${id}/toggle`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: nextStatus })
+          });
+        } catch (err) {}
+
+        if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+          try {
+            await chrome.runtime.sendMessage({ action: "TOGGLE_CAMPAIGN_STATUS", payload: { id, status: nextStatus } });
           } catch (err) {}
         }
         await loadData();
@@ -343,7 +374,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateLivePreview() {
-    livePreviewIcon.innerText = adIcon.value || "🚀";
+    const val = (adIcon.value || "").trim();
+    if (val.startsWith("data:") || val.includes("/") || val.includes(".jpeg") || val.includes(".jpg") || val.includes(".png")) {
+      livePreviewIcon.innerHTML = `<img src="${val}" alt="Logo" style="width:26px; height:26px; border-radius:6px; object-fit:cover; display:inline-block; vertical-align:middle;" />`;
+    } else {
+      livePreviewIcon.innerText = val || "🚀";
+    }
     livePreviewCompany.innerText = adCompany.value || "Your Brand";
     livePreviewTitle.innerText = adTitle.value || "Compelling Ad Headline";
     livePreviewDesc.innerText = adDescription.value || "Clear value proposition highlighting your special product or service.";
