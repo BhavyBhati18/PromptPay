@@ -636,6 +636,174 @@ input[type="range"].styled-slider::-webkit-slider-thumb:hover {
   color: var(--text-dim);
 }
 
+/* ── Live Sponsors Infinite Marquee ── */
+.sponsors-marquee-section {
+  padding: 2.5rem 0 3.5rem;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(56, 189, 248, 0.04) 0%, transparent 80%);
+}
+
+.sponsors-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.sponsors-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  padding: 0.35rem 0.9rem;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-full);
+}
+
+.sponsors-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse-live 1.8s infinite;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  user-select: none;
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+}
+
+.marquee-track {
+  display: flex;
+  gap: 1.25rem;
+  width: max-content;
+  animation: scroll-left 32s linear infinite;
+  will-change: transform;
+}
+
+.marquee-container:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.sponsor-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1.35rem;
+  background: rgba(18, 24, 38, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-main);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sponsor-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(22, 30, 48, 0.95);
+  box-shadow: 0 8px 24px -6px rgba(56, 189, 248, 0.25);
+}
+
+.sponsor-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15));
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #fff;
+}
+
+.sponsor-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sponsor-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sponsor-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.sponsor-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sponsor-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Slot Reserved / Available styling */
+.sponsor-card.slot-reserve {
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  background: rgba(15, 21, 33, 0.45);
+  opacity: 0.85;
+}
+
+.sponsor-card.slot-reserve:hover {
+  opacity: 1;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 8px 24px -6px rgba(99, 102, 241, 0.25);
+}
+
+.sponsor-card.slot-reserve .sponsor-icon-wrap {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.sponsor-card.slot-reserve .sponsor-tag {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
 /* Responsiveness */
 @media (max-width: 900px) {
   .hero-title { font-size: 2.75rem; }
