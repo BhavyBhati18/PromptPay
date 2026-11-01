@@ -113,7 +113,7 @@
       <div class="withdrawal-inner">
         <div class="withdrawal-info">
           <h3>Payout Progress</h3>
-          <p id="withdrawal-subtext">Reach the $10.00 minimum threshold to request your payout via PayPal, UPI, USDT, or Bank Wire.</p>
+          <p id="withdrawal-subtext">Reach the $10.00 minimum threshold to request your payout via Bank Transfer or Mobile Number Transfer.</p>
           <div class="progress-container">
             <div class="progress-labels">
               <span id="progress-percent">0% reached</span>
@@ -245,17 +245,14 @@
         <div class="form-group">
           <label for="withdraw-method">Payout Method</label>
           <select id="withdraw-method" required>
-            <option value="PayPal">PayPal</option>
-            <option value="UPI">UPI (Google Pay / PhonePe / Paytm)</option>
-            <option value="USDT (TRC-20)">USDT (TRC-20 Tron)</option>
-            <option value="USDT (ERC-20)">USDT (ERC-20 Ethereum)</option>
-            <option value="Bank Transfer">Bank Wire Transfer</option>
+            <option value="Bank Transfer">Bank Transfer (Direct Account / NEFT / IMPS)</option>
+            <option value="Mobile Number Transfer">Mobile Number Transfer (UPI / GPay / PhonePe / Paytm)</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="account-details" id="account-label">PayPal Email or Account Address</label>
-          <input type="text" id="account-details" placeholder="name@domain.com or user@upi" required>
+          <label for="account-details" id="account-label">Bank Account Details (Account No, IFSC, Holder Name)</label>
+          <input type="text" id="account-details" placeholder="e.g. Account: 1234567890, IFSC: HDFC0001234, Name: John Doe" required>
         </div>
 
         <p class="modal-notice">

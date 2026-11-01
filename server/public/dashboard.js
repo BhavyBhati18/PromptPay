@@ -172,6 +172,21 @@ const openModalBtn = document.getElementById('open-withdraw-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const withdrawForm = document.getElementById('withdraw-form');
 const modalAlert = document.getElementById('modal-alert');
+const methodSelect = document.getElementById('withdraw-method');
+const accountLabel = document.getElementById('account-label');
+const accountInput = document.getElementById('account-details');
+
+if (methodSelect && accountLabel && accountInput) {
+  methodSelect.addEventListener('change', () => {
+    if (methodSelect.value === 'Mobile Number Transfer') {
+      accountLabel.textContent = 'Mobile Number / UPI ID (PhonePe / GPay / Paytm)';
+      accountInput.placeholder = 'e.g. +91 9876543210 or yourname@upi';
+    } else {
+      accountLabel.textContent = 'Bank Account Details (Account No, IFSC, Holder Name)';
+      accountInput.placeholder = 'e.g. Account: 1234567890, IFSC: HDFC0001234, Name: John Doe';
+    }
+  });
+}
 
 openModalBtn.addEventListener('click', () => {
   if (currentUser) {
