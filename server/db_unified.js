@@ -5,6 +5,9 @@
  */
 
 require('dotenv').config();
+const dns = require('dns');
+try { dns.setDefaultResultOrder('ipv4first'); } catch {}
+
 const mongoose = require('mongoose');
 const sqliteDb = require('./database');
 const { User, Search, Withdrawal, Campaign, Session } = require('./mongo_models');
@@ -26,7 +29,8 @@ class UnifiedDatabase {
       try {
         console.log('⏳ Connecting to MongoDB Atlas Cloud Database...');
         await mongoose.connect(mongoUri, {
-          serverSelectionTimeoutMS: 8000
+          serverSelectionTimeoutMS: 10000,
+          family: 4
         });
         this.isMongo = true;
         this.mongoConnected = true;

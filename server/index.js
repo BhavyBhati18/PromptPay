@@ -313,10 +313,12 @@ async function serveDatabaseData(res) {
 app.get('/api/health', async (req, res) => {
   try {
     const users = await db.getAllUsers();
+    const uri = process.env.MONGO_URI || process.env.MONGODB_URI || 'DEFAULT_USED';
     res.json({
       status: 'ok',
       database: db.isMongo ? 'MongoDB Atlas' : 'Local SQLite',
       mongoError: db.mongoError,
+      uriSource: uri.startsWith('mongodb') ? (uri.includes('promptpay') ? 'promptpay' : 'PayGpt') : uri,
       timestamp: new Date().toISOString(),
       userCount: users ? users.length : 0
     });
