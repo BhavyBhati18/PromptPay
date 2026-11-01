@@ -100,8 +100,7 @@
       console.log("[AI Search Ads] Background response:", JSON.stringify(response));
 
       if (response && response.success) {
-        showRewardToast(response.reward, response.newBalance);
-
+        // Earnings popup notification removed as requested; earnings still tracked in background and dashboard.
         if (response.ad) {
           console.log("[AI Search Ads] Ad received:", response.ad.title, "- injecting now");
           // Wait a moment for the response to start appearing, then show the ad
