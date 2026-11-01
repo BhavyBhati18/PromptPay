@@ -472,6 +472,11 @@ app.post('/api/auth/login', async (req, res) => {
         return res.status(401).json({ error: 'Invalid email or password' });
       }
 
+      // Guard: if password_hash is missing (migration artifact), return friendly error
+      if (!user.password_hash) {
+        return res.status(401).json({ error: 'Account needs password reset. Please contact support.' });
+      }
+
       const valid = await comparePassword(password, user.password_hash);
       if (!valid) {
         return res.status(401).json({ error: 'Invalid email or password' });
