@@ -625,11 +625,11 @@ app.post('/api/search/record', optionalAuth, async (req, res) => {
     const newBalance = Math.round((currentBal + REWARD_PER_SEARCH) * 1000000) / 1000000;
     const newSearchCount = currentCount + 1;
     const newLifetimeEarnings = Math.round((currentLife + REWARD_PER_SEARCH) * 1000000) / 1000000;
-    await db.updateUserBalance(userId, newBalance, newSearchCount, newLifetimeEarnings);
+    await db.updateUserBalance(user.id, newBalance, newSearchCount, newLifetimeEarnings);
 
     // Record the search
     await db.recordSearch({
-      userId,
+      userId: user.id,
       query: query || null,
       platform: platform || null,
       reward: REWARD_PER_SEARCH,
@@ -637,7 +637,7 @@ app.post('/api/search/record', optionalAuth, async (req, res) => {
     });
 
     // Update last active
-    await db.updateLastActive(userId);
+    await db.updateLastActive(user.id);
 
     // Prepare ad response
     let adResponse = null;
