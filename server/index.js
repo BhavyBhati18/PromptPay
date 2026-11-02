@@ -617,10 +617,14 @@ app.post('/api/search/record', optionalAuth, async (req, res) => {
       await db.updateCampaign(ad.id, { impressions: (ad.impressions || 0) + 1 });
     }
 
-    // Credit the reward
-    const newBalance = user.balance + REWARD_PER_SEARCH;
-    const newSearchCount = user.search_count + 1;
-    const newLifetimeEarnings = user.lifetime_earnings + REWARD_PER_SEARCH;
+    // Credit the reward with exact precision
+    const currentBal = Number(user.balance) || 0;
+    const currentCount = Number(user.search_count) || 0;
+    const currentLife = Number(user.lifetime_earnings) || 0;
+
+    const newBalance = Math.round((currentBal + REWARD_PER_SEARCH) * 1000000) / 1000000;
+    const newSearchCount = currentCount + 1;
+    const newLifetimeEarnings = Math.round((currentLife + REWARD_PER_SEARCH) * 1000000) / 1000000;
     await db.updateUserBalance(userId, newBalance, newSearchCount, newLifetimeEarnings);
 
     // Record the search

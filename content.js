@@ -33,29 +33,33 @@
     if (isChatGPT) {
       const textarea = document.querySelector("#prompt-textarea") ||
                        document.querySelector("textarea[data-id='root']") ||
-                       document.querySelector("div[contenteditable='true']");
+                       document.querySelector("div#prompt-textarea") ||
+                       document.querySelector("div[contenteditable='true']") ||
+                       document.querySelector("textarea");
       if (textarea) {
-        text = textarea.value || textarea.innerText || "";
+        text = textarea.value || textarea.innerText || textarea.textContent || "";
       }
 
       if (!text.trim()) {
         const userMessages = document.querySelectorAll('[data-message-author-role="user"]');
         if (userMessages.length > 0) {
-          text = userMessages[userMessages.length - 1].innerText || "";
+          text = userMessages[userMessages.length - 1].innerText || userMessages[userMessages.length - 1].textContent || "";
         }
       }
     } else if (isGemini) {
       const qlEditor = document.querySelector(".ql-editor") ||
                        document.querySelector("rich-textarea div[contenteditable='true']") ||
-                       document.querySelector("div[role='textbox']");
+                       document.querySelector("div[role='textbox']") ||
+                       document.querySelector(".textarea") ||
+                       document.querySelector("textarea");
       if (qlEditor) {
-        text = qlEditor.innerText || qlEditor.textContent || "";
+        text = qlEditor.value || qlEditor.innerText || qlEditor.textContent || "";
       }
 
       if (!text.trim()) {
-        const userQueries = document.querySelectorAll(".user-query-container, .query-text, user-query");
+        const userQueries = document.querySelectorAll(".user-query-container, .query-text, user-query, [data-test-id='user-query']");
         if (userQueries.length > 0) {
-          text = userQueries[userQueries.length - 1].innerText || "";
+          text = userQueries[userQueries.length - 1].innerText || userQueries[userQueries.length - 1].textContent || "";
         }
       }
     }
@@ -249,20 +253,21 @@
       const activeEl = document.activeElement;
       if (!activeEl) return;
 
-      const isPromptInput =
-        activeEl.id === "prompt-textarea" ||
-        activeEl.getAttribute("data-id") === "root" ||
-        activeEl.classList.contains("ql-editor") ||
-        activeEl.getAttribute("contenteditable") === "true" ||
-        activeEl.closest("rich-textarea") ||
-        activeEl.closest("form");
+    const isPromptInput =
+      activeEl.id === "prompt-textarea" ||
+      activeEl.getAttribute("data-id") === "root" ||
+      activeEl.classList.contains("ql-editor") ||
+      activeEl.getAttribute("contenteditable") === "true" ||
+      activeEl.getAttribute("role") === "textbox" ||
+      activeEl.tagName === "TEXTAREA" ||
+      activeEl.closest("#prompt-textarea") ||
+      activeEl.closest("rich-textarea") ||
+      activeEl.closest("form");
 
-      if (isPromptInput) {
-        const queryText = activeEl.value || activeEl.innerText || "";
-        if (queryText.trim().length > 1) {
-          handleSearchTriggered(queryText.trim());
-        }
-      }
+    if (isPromptInput) {
+      const queryText = activeEl.value || activeEl.innerText || activeEl.textContent || "";
+      handleSearchTriggered(queryText.trim());
+    }
     }
   }, true);
 
@@ -276,9 +281,12 @@
       target.closest('button[data-testid="fruitjuice-send-button"]') ||
       target.closest('button[aria-label*="Send" i]') ||
       target.closest('button[aria-label*="Submit" i]') ||
+      target.closest('button[aria-label*="Prompt" i]') ||
       target.closest('button.send-button') ||
       target.closest('.send-button-container') ||
-      target.closest('form button[type="submit"]');
+      target.closest('button.mat-mdc-tooltip-trigger') ||
+      target.closest('form button[type="submit"]') ||
+      target.closest('form button');
 
     if (sendButton) {
       handleSearchTriggered();
