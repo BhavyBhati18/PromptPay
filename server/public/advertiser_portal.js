@@ -82,6 +82,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else if (viewId === "view-preview") {
       pageTitle.innerText = "Live Search Preview";
       pageDesc.innerText = "See how your ad appears inside ChatGPT and Gemini conversations.";
+    } else if (viewId === "view-requests") {
+      pageTitle.innerText = "Advertising Requests";
+      pageDesc.innerText = "Review incoming ad inquiries from businesses and import them directly into campaigns.";
+      loadInquiries();
     } else if (viewId === "view-docs") {
       pageTitle.innerText = "Advertiser Guidelines";
       pageDesc.innerText = "Learn how AI search targeting and micropayment rewards operate.";
@@ -442,6 +446,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       alert("🎉 Campaign published successfully! Your ad is now active in the search rotation.");
+
+      // If this was imported from an inquiry, mark it as Imported
+      if (adCreateForm.dataset.importedInquiryId) {
+        await updateInquiryStatus(adCreateForm.dataset.importedInquiryId, "Imported");
+        delete adCreateForm.dataset.importedInquiryId;
+      }
       await loadData();
       resetForm();
       switchView("view-campaigns");
@@ -452,7 +462,191 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  function escapeHtml(str) {
+  // ═══════════════════════════════════════════════════════════
+  //  AD REQUESTS / INQUIRIES
+  // ═══════════════════════════════════════════════════════════
+
+  const requestsContainer = document.getElementById("requests-container");
+  const btnRefreshRequests = document.getElementById("btn-refresh-requests");
+
+  if (btnRefreshRequests) {
+    btnRefreshRequests.addEventListener("click", loadInquiries);
+  }
+
+  async function loadInquiries() {
+    if (!requestsContainer) return;
+    requestsContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#64748b;"><h3>Loading...</h3></div>';
+
+    try {
+      const res = await fetch(`${API_BASE}/advertiser/inquiries`);
+      if (!res.ok) throw new Error("Failed to fetch inquiries");
+      const json = await res.json();
+      const inquiries = json.inquiries || [];
+
+      if (inquiries.length === 0) {
+        requestsContainer.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:#64748b;background:#0f172a;border-radius:12px;border:1px dashed rgba(255,255,255,0.1);">
+            <h3>No advertising requests yet</h3>
+            <p style="margin-top:8px;">When businesses submit inquiries from the Advertise page, they will appear here.</p>
+          </div>`;
+        return;
+      }
+
+      requestsContainer.innerHTML = inquiries.map(inq => {
+        const statusColor = inq.status === 'Pending Review' ? '#facc15'
+          : inq.status === 'Imported' ? '#10b981'
+          : inq.status === 'Rejected' ? '#f87171' : '#94a3b8';
+        const statusBg = inq.status === 'Pending Review' ? 'rgba(234,179,8,0.12)'
+          : inq.status === 'Imported' ? 'rgba(16,185,129,0.12)'
+          : inq.status === 'Rejected' ? 'rgba(248,113,113,0.12)' : 'rgba(148,163,184,0.12)';
+
+        const createdDate = inq.created_at ? new Date(inq.created_at).toLocaleDateString('en-US', {
+          year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : 'N/A';
+
+        return `
+          <div class="ad-campaign-card" style="position:relative;">
+            <div class="ad-card-top">
+              <div class="ad-card-company">
+                <div class="ad-card-icon" style="font-size:1.3rem;">📬</div>
+                <div class="ad-card-names">
+                  <h4>${escapeHtml(inq.company)}</h4>
+                  <span>${escapeHtml(inq.contact || '')} • ${escapeHtml(inq.email || '')}</span>
+                </div>
+              </div>
+              <span class="status-tag" style="background:${statusBg};color:${statusColor};border:1px solid ${statusColor}33;">
+                ${escapeHtml(inq.status || 'Pending Review')}
+              </span>
+            </div>
+
+            <div class="ad-card-headline" style="margin-top:0.75rem;">
+              <a href="${escapeHtml(inq.url)}" target="_blank" rel="noopener noreferrer" style="color:#38bdf8;text-decoration:none;word-break:break-all;">${escapeHtml(inq.url)}</a>
+            </div>
+
+            <div class="ad-stats-bar" style="margin-top:0.75rem;">
+              <div class="ad-stat-box">
+                <strong>${escapeHtml(inq.budget)}</strong>
+                <span>Budget</span>
+              </div>
+              <div class="ad-stat-box">
+                <strong>${inq.platform === 'all' ? 'Both' : escapeHtml(inq.platform)}</strong>
+                <span>Platform</span>
+              </div>
+              <div class="ad-stat-box">
+                <strong>${createdDate}</strong>
+                <span>Submitted</span>
+              </div>
+            </div>
+
+            ${inq.keywords ? '<div class="ad-keywords-list" style="margin-top:0.5rem;">' + inq.keywords.split(',').map(k => k.trim()).filter(k=>k).map(k => '<span class="keyword-badge">' + escapeHtml(k) + '</span>').join('') + '</div>' : ''}
+
+            ${inq.goal ? '<div style="margin-top:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;"><span style="font-size:0.75rem;color:#64748b;text-transform:uppercase;font-weight:600;">Campaign Goals</span><p style="color:#94a3b8;font-size:0.85rem;margin-top:0.25rem;line-height:1.5;">' + escapeHtml(inq.goal) + '</p></div>' : ''}
+
+            <div class="ad-card-actions" style="margin-top:1rem;">
+              <button class="btn-card-action btn-import-inquiry" data-inquiry-id="${inq.id}" data-company="${escapeHtml(inq.company)}" data-url="${escapeHtml(inq.url)}" data-platform="${escapeHtml(inq.platform || 'all')}" data-keywords="${escapeHtml(inq.keywords || '')}" data-goal="${escapeHtml(inq.goal || '')}" style="background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);font-weight:700;">
+                🚀 Import to Campaign
+              </button>
+              ${inq.status !== 'Rejected' ? '<button class="btn-card-action btn-reject-inquiry" data-inquiry-id="' + inq.id + '" style="color:#f87171;">Reject</button>' : ''}
+            </div>
+          </div>`;
+      }).join("");
+
+      // Attach event listeners for import buttons
+      document.querySelectorAll(".btn-import-inquiry").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const el = e.currentTarget;
+          importInquiryToCampaign({
+            id: el.dataset.inquiryId,
+            company: el.dataset.company,
+            url: el.dataset.url,
+            platform: el.dataset.platform,
+            keywords: el.dataset.keywords,
+            goal: el.dataset.goal
+          });
+        });
+      });
+
+      // Attach event listeners for reject buttons
+      document.querySelectorAll(".btn-reject-inquiry").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const id = e.currentTarget.dataset.inquiryId;
+          if (confirm("Reject this advertising request?")) {
+            await updateInquiryStatus(id, "Rejected");
+            await loadInquiries();
+          }
+        });
+      });
+
+    } catch (err) {
+      console.error("Failed to load inquiries:", err);
+      requestsContainer.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:#f87171;background:rgba(248,113,113,0.06);border-radius:12px;border:1px solid rgba(248,113,113,0.2);">
+          <h3>Failed to load requests</h3>
+          <p style="margin-top:8px;">${err.message}</p>
+        </div>`;
+    }
+  }
+
+  function importInquiryToCampaign(inquiry) {
+    // Reset form first
+    resetForm();
+
+    // Pre-fill company name
+    adCompany.value = inquiry.company || "";
+
+    // Pre-fill URL
+    adUrl.value = inquiry.url || "";
+
+    // Pre-fill platform
+    if (inquiry.platform) {
+      adPlatform.value = inquiry.platform;
+    }
+
+    // Pre-fill keywords
+    if (inquiry.keywords) {
+      adKeywords.value = inquiry.keywords;
+    }
+
+    // Pre-fill description from goal if available
+    if (inquiry.goal) {
+      adDescription.value = inquiry.goal;
+    }
+
+    // Auto-generate a title suggestion from company name
+    adTitle.value = "Discover " + (inquiry.company || "Our Product");
+
+    // Set default CTA
+    adCta.value = "Learn More";
+
+    // Update live preview
+    updateLivePreview();
+
+    // Mark form as import
+    btnSaveAd.innerText = "🚀 Publish Imported Campaign";
+
+    // Store inquiry id for status update after publishing
+    adCreateForm.dataset.importedInquiryId = inquiry.id;
+
+    // Switch to create view
+    switchView("view-create");
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function updateInquiryStatus(inquiryId, status) {
+    try {
+      await fetch(`${API_BASE}/advertiser/inquiry/${inquiryId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+    } catch (err) {
+      console.error("Failed to update inquiry status:", err);
+    }
+  }
+
+    function escapeHtml(str) {
     if (!str) return "";
     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }

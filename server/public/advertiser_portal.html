@@ -29,6 +29,10 @@
           <span class="nav-icon">➕</span>
           <span>Create New Ad</span>
         </button>
+        <button class="nav-item" data-view="view-requests">
+          <span class="nav-icon">📬</span>
+          <span>Ad Requests</span>
+        </button>
         <button class="nav-item" data-view="view-preview">
           <span class="nav-icon">👁️</span>
           <span>In-Page Preview</span>
@@ -203,7 +207,20 @@
         </div>
       </section>
 
-      <!-- View 3: Live In-Page Preview -->
+      <!-- View: Ad Requests / Inquiries -->
+      <section class="view-section" id="view-requests">
+        <div class="requests-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3 style="color: #fff; font-size: 1.1rem;">Incoming Advertising Requests</h3>
+          <button id="btn-refresh-requests" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); color: #38bdf8; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">🔄 Refresh</button>
+        </div>
+        <div id="requests-container" class="campaigns-grid">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b; background: #0f172a; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+            <h3>Loading requests...</h3>
+          </div>
+        </div>
+      </section>
+
+            <!-- View 3: Live In-Page Preview -->
       <section class="view-section" id="view-preview">
         <div class="preview-container">
           <div class="preview-header">

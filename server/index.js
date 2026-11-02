@@ -296,6 +296,36 @@ app.post('/api/advertiser/inquiry', async (req, res) => {
   }
 });
 
+// List all advertiser inquiries (admin only)
+app.get('/api/advertiser/inquiries', optionalAuth, async (req, res) => {
+  try {
+    const { Inquiry } = require('./mongo_models');
+    if (db.isMongo) {
+      const inquiries = await Inquiry.find().sort({ created_at: -1 }).lean();
+      return res.json({ success: true, inquiries });
+    }
+    res.json({ success: true, inquiries: [] });
+  } catch (err) {
+    console.error('Inquiries list error:', err);
+    res.status(500).json({ error: 'Failed to fetch inquiries' });
+  }
+});
+
+// Update inquiry status (e.g. mark as Imported / Approved / Rejected)
+app.patch('/api/advertiser/inquiry/:id/status', optionalAuth, async (req, res) => {
+  try {
+    const { Inquiry } = require('./mongo_models');
+    const { status } = req.body;
+    if (!status) return res.status(400).json({ error: 'Status is required' });
+    const updated = await Inquiry.findOneAndUpdate({ id: req.params.id }, { status }, { new: true }).lean();
+    if (!updated) return res.status(404).json({ error: 'Inquiry not found' });
+    res.json({ success: true, inquiry: updated });
+  } catch (err) {
+    console.error('Inquiry status update error:', err);
+    res.status(500).json({ error: 'Failed to update inquiry status' });
+  }
+});
+
 // Admin Database Viewer API (Allows secret key OR admin email login)
 app.get('/api/admin/database', async (req, res) => {
   const adminKey = req.headers['x-admin-key'] || req.query.key;
