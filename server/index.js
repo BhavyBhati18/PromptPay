@@ -928,10 +928,18 @@ app.post('/api/advertiser/campaign', optionalAuth, async (req, res) => {
     if (Array.isArray(payload.keywords)) {
       payload.keywords = JSON.stringify(payload.keywords);
     }
+    // If updating an existing campaign
+    if (payload.id) {
+      const existing = await db.getCampaignById(payload.id);
+      if (existing) {
+        const updated = await db.updateCampaign(payload.id, payload);
+        return res.json({ success: true, campaign: updated });
+      }
+    }
     const campaign = await db.createCampaign(payload);
     res.status(201).json({ success: true, campaign });
   } catch (err) {
-    console.error('Campaign create error:', err);
+    console.error('Campaign create/update error:', err);
     res.status(500).json({ error: 'Failed to create campaign', details: err.message });
   }
 });
@@ -963,14 +971,18 @@ app.patch('/api/advertiser/campaign/:id/toggle', optionalAuth, async (req, res) 
 // Update campaign
 app.patch('/api/advertiser/campaign/:id', optionalAuth, async (req, res) => {
   try {
-    const campaign = await db.updateCampaign(req.params.id, req.body);
+    const payload = { ...req.body };
+    if (Array.isArray(payload.keywords)) {
+      payload.keywords = JSON.stringify(payload.keywords);
+    }
+    const campaign = await db.updateCampaign(req.params.id, payload);
     if (!campaign) {
       return res.status(404).json({ error: 'Campaign not found' });
     }
     res.json({ success: true, campaign });
   } catch (err) {
     console.error('Campaign update error:', err);
-    res.status(500).json({ error: 'Failed to update campaign' });
+    res.status(500).json({ error: 'Failed to update campaign', details: err.message });
   }
 });
 

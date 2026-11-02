@@ -424,9 +424,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnSaveAd.innerText = "Saving Campaign...";
 
     try {
-      // 1. Post to REST API directly
-      const res = await fetch(`${API_BASE}/advertiser/campaign`, {
-        method: "POST",
+      // 1. Post/Patch to REST API
+      const isUpdate = Boolean(campaignData.id);
+      const url = isUpdate ? `${API_BASE}/advertiser/campaign/${campaignData.id}` : `${API_BASE}/advertiser/campaign`;
+      const method = isUpdate ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(campaignData)
       });
@@ -439,13 +443,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
         try {
           await chrome.runtime.sendMessage({
-            action: "SAVE_CAMPAIGN",
+            action: isUpdate ? "UPDATE_CAMPAIGN" : "SAVE_CAMPAIGN",
             payload: campaignData
           });
         } catch (err) {}
       }
 
-      alert("🎉 Campaign published successfully! Your ad is now active in the search rotation.");
+      alert(isUpdate ? "🎉 Campaign updated successfully!" : "🎉 Campaign published successfully! Your ad is now active in the search rotation.");
 
       // If this was imported from an inquiry, mark it as Imported
       if (adCreateForm.dataset.importedInquiryId) {
