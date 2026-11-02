@@ -663,10 +663,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  // Check URL parameters (e.g. ?view=create)
+  // Check URL parameters (e.g. ?view=create&company=...)
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get("view") === "create") {
     switchView("view-create");
+
+    // If imported via URL params (from Admin Database or direct link)
+    if (urlParams.get("company")) {
+      importInquiryToCampaign({
+        id: urlParams.get("inquiryId") || "",
+        company: urlParams.get("company") || "",
+        url: urlParams.get("url") || "",
+        platform: urlParams.get("platform") || "all",
+        keywords: urlParams.get("keywords") || "",
+        goal: urlParams.get("goal") || ""
+      });
+    }
   }
 
   // Initial Load

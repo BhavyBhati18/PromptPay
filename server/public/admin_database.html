@@ -156,6 +156,7 @@
               <th style="min-width: 260px;">Campaign Goal</th>
               <th>Status</th>
               <th>Date</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="tbody-inquiries">
@@ -327,6 +328,11 @@
               </td>
               <td><span class="badge-tag badge-amber">${escapeHtml(inq.status || 'Pending')}</span></td>
               <td style="white-space: nowrap;">${inq.created_at ? new Date(inq.created_at).toLocaleString() : '-'}</td>
+              <td onclick="event.stopPropagation()">
+                <button class="btn-primary-sm" style="padding: 4px 10px; font-size: 0.75rem; background: #38bdf8; color: #000; font-weight: 700; border: none; cursor: pointer; border-radius: 6px; white-space: nowrap;" onclick="importToCampaign(${idx})">
+                  🚀 Import Ad
+                </button>
+              </td>
             </tr>
           `).join('');
         }
@@ -445,11 +451,31 @@
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button class="btn-primary-sm" style="padding: 0.5rem 1.2rem; background: #38bdf8; color: #000; font-weight: 700; border: none; cursor: pointer; border-radius: 6px;" onclick="importToCampaign(${idx})">
+            🚀 Import to Ad Campaign →
+          </button>
           <a href="mailto:${escapeHtml(inq.email)}?subject=Re:%20QueryPay%20Advertising%20Inquiry%20for%20${encodeURIComponent(inq.company)}" class="btn-primary-sm" style="display: inline-block;">Reply via Email ✉️</a>
         </div>
       `;
       const modal = document.getElementById('inquiry-modal');
       modal.style.display = 'flex';
+    }
+
+    function importToCampaign(idx) {
+      const inq = window._rawInquiries && window._rawInquiries[idx];
+      if (!inq) return;
+
+      const params = new URLSearchParams({
+        view: 'create',
+        company: inq.company || '',
+        url: inq.url || '',
+        platform: inq.platform || 'all',
+        keywords: inq.keywords || '',
+        goal: inq.goal || '',
+        inquiryId: inq.id || ''
+      });
+
+      window.location.href = '/advertiser_portal.html?' + params.toString();
     }
 
     function closeModal() {
