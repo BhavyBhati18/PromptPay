@@ -924,11 +924,15 @@ app.get('/api/advertiser/campaigns', optionalAuth, async (req, res) => {
 // Create campaign
 app.post('/api/advertiser/campaign', optionalAuth, async (req, res) => {
   try {
-    const campaign = await db.createCampaign(req.body);
+    const payload = { ...req.body };
+    if (Array.isArray(payload.keywords)) {
+      payload.keywords = JSON.stringify(payload.keywords);
+    }
+    const campaign = await db.createCampaign(payload);
     res.status(201).json({ success: true, campaign });
   } catch (err) {
     console.error('Campaign create error:', err);
-    res.status(500).json({ error: 'Failed to create campaign' });
+    res.status(500).json({ error: 'Failed to create campaign', details: err.message });
   }
 });
 

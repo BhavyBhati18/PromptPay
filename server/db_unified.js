@@ -209,7 +209,10 @@ class UnifiedDatabase {
   async createCampaign(campaign) {
     if (this.isMongo) {
       const id = campaign.id || ('ad_' + crypto.randomBytes(10).toString('hex'));
-      const doc = await Campaign.create({ ...campaign, id });
+      const keywords = typeof campaign.keywords === 'object'
+        ? JSON.stringify(campaign.keywords)
+        : (campaign.keywords || '[]');
+      const doc = await Campaign.create({ ...campaign, keywords, id });
       return doc.toObject();
     }
     return sqliteDb.createCampaign(campaign);
@@ -217,7 +220,11 @@ class UnifiedDatabase {
 
   async updateCampaign(id, updates) {
     if (this.isMongo) {
-      await Campaign.updateOne({ id }, { $set: updates });
+      const payload = { ...updates };
+      if (payload.keywords !== undefined && typeof payload.keywords === 'object') {
+        payload.keywords = JSON.stringify(payload.keywords);
+      }
+      await Campaign.updateOne({ id }, { $set: payload });
       return await Campaign.findOne({ id }).lean();
     }
     return sqliteDb.updateCampaign(id, updates);
