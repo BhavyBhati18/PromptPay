@@ -478,10 +478,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     requestsContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#64748b;"><h3>Loading...</h3></div>';
 
     try {
-      const res = await fetch(`${API_BASE}/advertiser/inquiries`);
-      if (!res.ok) throw new Error("Failed to fetch inquiries");
-      const json = await res.json();
-      const inquiries = json.inquiries || [];
+      let inquiries = [];
+      let res = await fetch(`${API_BASE}/advertiser/inquiries`, { credentials: 'include' });
+      if (res.ok) {
+        const json = await res.json();
+        inquiries = json.inquiries || [];
+      } else {
+        // Fallback to /api/admin/database endpoint
+        const adminKey = sessionStorage.getItem('adminKey') || 'admin123';
+        const dbRes = await fetch(`${API_BASE}/admin/database?key=${encodeURIComponent(adminKey)}`, { credentials: 'include' });
+        if (dbRes.ok) {
+          const dbData = await dbRes.json();
+          inquiries = dbData.inquiries || [];
+        } else {
+          throw new Error("Unable to fetch inquiries from server");
+        }
+      }
 
       if (inquiries.length === 0) {
         requestsContainer.innerHTML = `
