@@ -10,4 +10,4 @@ Disallow: /register
 Disallow: /admin_database
 Disallow: /advertiser_portal
 
-Sitemap: https://prompt-pay-server.vercel.app/sitemap.xml
+Sitemap: https://querypay.vercel.app/sitemap.xml
