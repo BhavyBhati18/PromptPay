@@ -6,10 +6,11 @@
 
 importScripts("ad_engine.js");
 
-// Endpoints to try: local server first (for instant local testing), then production Render
+// Endpoints to try: production Vercel proxy, local server, and direct Render
 const API_ENDPOINTS = [
-  "http://localhost:3000/api",
-  "https://promptpay-api-zzao.onrender.com/api"
+  "https://querypay.vercel.app/api",
+  "https://promptpay-api-zzao.onrender.com/api",
+  "http://localhost:3000/api"
 ];
 const REWARD_PER_SEARCH = 0.0003;
 const MIN_WITHDRAWAL_AMOUNT = 10.00;
@@ -83,10 +84,10 @@ chrome.runtime.onInstalled.addListener(async () => {
   ]);
 
   const updates = {};
-  if (remote && remote.success) {
-    updates.balance = remote.user.balance;
-    updates.searchCount = remote.user.searchCount;
-    updates.lifetimeEarnings = remote.user.lifetimeEarnings;
+  if (remote && remote.success && remote.user) {
+    updates.balance = Number(remote.user.balance) || 0.0000;
+    updates.searchCount = Number(remote.user.search_count ?? remote.user.searchCount) || 0;
+    updates.lifetimeEarnings = Number(remote.user.lifetime_earnings ?? remote.user.lifetimeEarnings) || 0.0000;
     if (remote.withdrawals) updates.withdrawals = remote.withdrawals;
     if (remote.searches) updates.recentSearches = remote.searches;
   } else {
@@ -372,11 +373,11 @@ async function handleGetUserData() {
 
   // Try sync with backend
   const remote = await apiFetch("/user/sync", "POST", { userId });
-  if (remote && remote.success) {
+  if (remote && remote.success && remote.user) {
     await chrome.storage.local.set({
-      balance: remote.user.balance,
-      searchCount: remote.user.searchCount,
-      lifetimeEarnings: remote.user.lifetimeEarnings,
+      balance: Number(remote.user.balance) || 0.0000,
+      searchCount: Number(remote.user.search_count ?? remote.user.searchCount) || 0,
+      lifetimeEarnings: Number(remote.user.lifetime_earnings ?? remote.user.lifetimeEarnings) || 0.0000,
       withdrawals: remote.withdrawals || [],
       recentSearches: remote.searches || []
     });

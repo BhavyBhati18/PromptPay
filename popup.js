@@ -313,4 +313,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Initial Load & Poll for live updates while popup is open
   await refreshData();
+  const pollInterval = setInterval(refreshData, 2000);
+  window.addEventListener("unload", () => clearInterval(pollInterval));
 });
