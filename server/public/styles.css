@@ -188,7 +188,7 @@ body::before {
   margin-bottom: 1.75rem;
 }
 
-.pulse-dot {
+.badge-bullet {
   width: 7px;
   height: 7px;
   border-radius: 50%;
