@@ -20,21 +20,46 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <meta property="og:type" content="website">
+    <meta property="og:type" content="website">
   <meta property="og:title" content="QueryPay — Earn Real Money for Every AI Prompt on ChatGPT & Gemini">
   <meta property="og:description" content="QueryPay pays you real cash for every prompt on ChatGPT and Gemini. Install the QueryPay Chrome extension and earn passive income daily from AI searches.">
   <meta property="og:url" content="https://querypay.vercel.app/">
   <meta property="og:image" content="https://querypay.vercel.app/favicon-512x512.png">
+  <meta property="og:image:secure_url" content="https://querypay.vercel.app/favicon-512x512.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:image:alt" content="QueryPay Logo">
   <meta property="og:site_name" content="QueryPay">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="QueryPay — Earn Real Money for Every AI Prompt on ChatGPT & Gemini">
   <meta name="twitter:description" content="QueryPay pays you real cash for every prompt on ChatGPT and Gemini. Install the QueryPay Chrome extension and earn passive income daily from AI searches.">
   <meta name="twitter:image" content="https://querypay.vercel.app/favicon-512x512.png">
-  <!-- Schema.org Structured Data for Google Rich Snippets -->
+  <meta name="twitter:image:alt" content="QueryPay Logo">
+  <link rel="image_src" href="https://querypay.vercel.app/favicon-512x512.png">
+  <meta name="msapplication-TileImage" content="https://querypay.vercel.app/favicon-512x512.png">
+  <meta name="msapplication-TileColor" content="#07080C">
+  <!-- Schema.org Structured Data for Google Rich Snippets & AI Search Answers -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://querypay.vercel.app/#organization",
+        "name": "QueryPay",
+        "alternateName": ["Query Pay", "QueryPay AI"],
+        "url": "https://querypay.vercel.app/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://querypay.vercel.app/favicon-512x512.png",
+          "width": 512,
+          "height": 512,
+          "caption": "QueryPay Logo"
+        },
+        "image": "https://querypay.vercel.app/favicon-512x512.png",
+        "description": "QueryPay shares advertising revenue directly with users for researching and browsing on ChatGPT and Google Gemini."
+      },
       {
         "@type": "WebSite",
         "@id": "https://querypay.vercel.app/#website",
@@ -42,12 +67,7 @@
         "name": "QueryPay",
         "description": "Earn real money for every prompt on ChatGPT and Gemini with QueryPay.",
         "publisher": {
-          "@type": "Organization",
-          "name": "QueryPay",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://querypay.vercel.app/favicon-512x512.png"
-          }
+          "@id": "https://querypay.vercel.app/#organization"
         }
       },
       {
@@ -61,6 +81,44 @@
           "priceCurrency": "USD"
         },
         "description": "Chrome Extension that pays users real income for every AI prompt made on ChatGPT and Google Gemini."
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://querypay.vercel.app/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How does QueryPay generate user payouts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Advertisers sponsor discreet, relevant links at the top of select queries. Unlike conventional search engines that retain 100% of commercial revenue, QueryPay distributes the advertising margin directly to users who generate the platform traffic."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my personal data or chat prompt saved by QueryPay?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Conversation prompts and model responses are never stored on QueryPay servers. Sponsor matching occurs locally using isolated keywords, preserving your privacy and confidentiality."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which payment methods are supported for QueryPay cashouts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We support fast settlement via direct Bank Transfer (Account No + IFSC/Routing), Mobile Number Transfer (UPI, PhonePe, Google Pay, Paytm), and instant Amazon Pay Gift Cards."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does QueryPay slow down ChatGPT or Google Gemini?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Not at all. The extension operates as an ultra-compact, non-blocking script that takes under 2ms to evaluate, ensuring standard AI performance."
+            }
+          }
+        ]
       }
     ]
   }

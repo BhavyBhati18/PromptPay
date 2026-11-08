@@ -13,4 +13,26 @@ Disallow: /register
 Disallow: /admin_database
 Disallow: /advertiser_portal
 
+# Explicitly grant access to AI Search and Citation Crawlers
+User-agent: Bingbot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
 Sitemap: https://querypay.vercel.app/sitemap.xml
