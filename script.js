@@ -99,7 +99,6 @@ async function checkNavAuth() {
 /* ---------- Part B: v2 presentation layer ---------- */
 (function () {
   const root = document.documentElement;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
@@ -139,40 +138,40 @@ async function checkNavAuth() {
   const reveals = $$(".reveal");
   reveals.forEach((el) => {
     const sibs = el.parentElement ? $$(":scope > .reveal", el.parentElement) : [];
-    const i = Math.max(0, sibs.indexOf(el));
-    el.style.setProperty("--d", Math.min(i, 6) * 90 + "ms");
+    const idx = Math.max(0, sibs.indexOf(el));
+    el.style.setProperty("--d", (idx * 60) + "ms");
   });
-  if ("IntersectionObserver" in window && !reduce) {
+  if ("IntersectionObserver" in window) {
     const revObs = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add("in"); revObs.unobserve(e.target); }
+        if (e.isIntersecting) {
+          e.target.classList.add("in");
+          revObs.unobserve(e.target);
+        }
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.1 });
     reveals.forEach((el) => revObs.observe(el));
   } else {
     reveals.forEach((el) => el.classList.add("in"));
   }
 
-  /* stepper: clickable, with an animated rail that fills to the active step */
+  /* stepper: rail fill to active step */
   const stepper = $("#stepper");
   if (stepper) {
     const steps = $$(".step-card", stepper);
+    const fill = $("#stepper-fill");
     const setStep = (idx) => {
       steps.forEach((s, i) => {
-        const on = i === idx;
-        s.classList.toggle("is-active", on);
-        s.classList.toggle("done", i < idx);
-        s.setAttribute("aria-pressed", on ? "true" : "false");
+        s.classList.toggle("is-active", i === idx);
+        s.setAttribute("aria-pressed", i === idx ? "true" : "false");
       });
-      const fill = idx / (steps.length - 1);
-      const f = $("#stepper-fill");
-      if (f) f.style.setProperty("--fill", fill.toFixed(3));
+      if (fill) fill.style.setProperty("--p", (idx / (steps.length - 1) * 100).toFixed(1) + "%");
     };
     const timers = [];
     const cancelAuto = () => { timers.forEach(clearTimeout); timers.length = 0; };
     steps.forEach((s, i) => s.addEventListener("click", () => { cancelAuto(); setStep(i); }));
     setStep(0);
-    if ("IntersectionObserver" in window && !reduce) {
+    if ("IntersectionObserver" in window) {
       let played = false;
       const stObs = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
@@ -190,18 +189,46 @@ async function checkNavAuth() {
     }
   }
 
-  /* hero demo: typed prompt -> answer -> sponsor slot -> illustrative ticker */
-  const PROMPT = "Compare three cheap cloud hosts for a side project";
-  const ANSWER = "Here's a quick take: pick the one with the simplest deploy, a free tier you won't outgrow this month, and clear pricing. Want a table?";
-  const RATE = 0.0003;          // the site's own per-prompt rate (calculator)
-  const PROMPTS = 40;           // illustrative count for one loop
+  /* hero demo: interactive multi-prompt typing loop */
+  const SCENARIOS = [
+    {
+      prompt: "Compare three cheap cloud hosts for a side project",
+      answer: "Here's a quick take: pick the one with the simplest deploy, a free tier you won't outgrow this month, and clear pricing. Want a table?",
+      sponsorTag: "Sponsored",
+      sponsorText: "DigitalOcean · Cloud & AI Hosting · link above the results",
+      promptsAdded: 40
+    },
+    {
+      prompt: "Best AI code editor with real-time autocompletion?",
+      answer: "Cursor offers deep codebase indexing, multi-file edits, and instant terminal debugging with integrated AI models.",
+      sponsorTag: "Live Sponsor",
+      sponsorText: "Cursor AI · The AI Code Editor · Try Free",
+      promptsAdded: 35
+    },
+    {
+      prompt: "Where can I find curated backpacking trips for Spiti Valley?",
+      answer: "Safarnamma offers curated high-altitude departures with verified local road captains, homestays, and 24/7 route support.",
+      sponsorTag: "Verified Ad",
+      sponsorText: "Safarnamma · Curated Group Trips & Backpacking Journeys",
+      promptsAdded: 45
+    },
+    {
+      prompt: "Top tools to fix grammar and polish technical documentation",
+      answer: "Grammarly and Notion AI provide context-aware rewriting, active voice suggestions, and automatic technical term consistency.",
+      sponsorTag: "Sponsored",
+      sponsorText: "Grammarly · AI Writing Assistant for Developers",
+      promptsAdded: 30
+    }
+  ];
+
+  const RATE = 0.0003;
   const typeEl = $("#demo-type"), aiEl = $("#demo-ai"), aiTxt = $("#demo-ai-text");
   const sponsorEl = $("#demo-sponsor"), valEl = $("#demo-value"), sendEl = $("#demo-send");
   const burstEl = $("#demo-burst");
   const money = (n) => "$" + n.toFixed(4);
 
   function coinBurst(target, n) {
-    if (!target || reduce) return;
+    if (!target) return;
     for (let i = 0; i < n; i++) {
       const c = document.createElement("span");
       c.className = "burst-piece";
@@ -217,46 +244,96 @@ async function checkNavAuth() {
   }
 
   async function demoLoop() {
-    if (!typeEl) return;
-    const userEl = $(".demo-user"), sponsorBox = sponsorEl;
+    if (!typeEl || !aiEl || !valEl) return;
+    const userEl = $(".demo-user");
+    const sponsorTagEl = sponsorEl ? sponsorEl.querySelector(".demo-sponsor-tag") : null;
+    const sponsorSpanEl = sponsorEl ? sponsorEl.querySelector("span:not(.demo-sponsor-tag)") : null;
+
+    let scenarioIdx = 0;
+    let accumulatedBalance = 0;
+
     while (true) {
-      userEl.classList.remove("done"); userEl.style.opacity = "0";
-      aiEl.style.opacity = "0"; aiEl.classList.remove("thinking"); aiTxt.textContent = "";
-      typeEl.textContent = ""; sponsorBox.classList.remove("show");
-      valEl.textContent = money(0); valEl.classList.remove("tick");
-      await sleep(600);
-      userEl.style.opacity = "1";
-      for (let i = 1; i <= PROMPT.length; i++) { typeEl.textContent = PROMPT.slice(0, i); await sleep(38); }
-      userEl.classList.add("done");
-      await sleep(350);
-      sendEl.classList.add("press"); await sleep(140); sendEl.classList.remove("press");
-      aiEl.style.opacity = "1"; aiEl.classList.add("thinking"); await sleep(900);
+      const cur = SCENARIOS[scenarioIdx % SCENARIOS.length];
+
+      // Update sponsor text
+      if (sponsorTagEl) sponsorTagEl.textContent = cur.sponsorTag;
+      if (sponsorSpanEl) sponsorSpanEl.textContent = cur.sponsorText;
+
+      // Reset states
+      if (userEl) { userEl.classList.remove("done"); userEl.style.opacity = "0"; }
+      aiEl.style.opacity = "0";
       aiEl.classList.remove("thinking");
-      for (let i = 1; i <= ANSWER.length; i += 2) { aiTxt.textContent = ANSWER.slice(0, i); await sleep(16); }
-      sponsorBox.classList.add("show");
-      await sleep(400);
-      valEl.classList.add("tick");
-      for (let k = 1; k <= PROMPTS; k++) {
-        valEl.textContent = money(RATE * k);
-        if (k % 8 === 0) coinBurst(burstEl, 4);
-        await sleep(42);
-      }
-      await sleep(2600);
+      if (aiTxt) aiTxt.textContent = "";
+      typeEl.textContent = "";
+      if (sponsorEl) sponsorEl.classList.remove("show");
       valEl.classList.remove("tick");
-      userEl.style.opacity = "0"; aiEl.style.opacity = "0"; sponsorBox.classList.remove("show");
-      await sleep(700);
+
+      await sleep(500);
+
+      // 1. User types prompt
+      if (userEl) userEl.style.opacity = "1";
+      for (let i = 1; i <= cur.prompt.length; i++) {
+        typeEl.textContent = cur.prompt.slice(0, i);
+        await sleep(32);
+      }
+      if (userEl) userEl.classList.add("done");
+      await sleep(300);
+
+      // 2. Press send button
+      if (sendEl) sendEl.classList.add("press");
+      await sleep(150);
+      if (sendEl) sendEl.classList.remove("press");
+
+      // 3. AI Thinking dots
+      aiEl.style.opacity = "1";
+      aiEl.classList.add("thinking");
+      await sleep(800);
+      aiEl.classList.remove("thinking");
+
+      // 4. AI types response
+      for (let i = 1; i <= cur.answer.length; i += 2) {
+        if (aiTxt) aiTxt.textContent = cur.answer.slice(0, i);
+        await sleep(14);
+      }
+
+      // 5. Sponsored placement reveals
+      if (sponsorEl) sponsorEl.classList.add("show");
+      await sleep(350);
+
+      // 6. Balance increments with coin burst
+      valEl.classList.add("tick");
+      const targetBalance = accumulatedBalance + (RATE * cur.promptsAdded);
+      const steps = cur.promptsAdded;
+      for (let k = 1; k <= steps; k++) {
+        const curVal = accumulatedBalance + (RATE * k);
+        valEl.textContent = money(curVal);
+        if (k % 8 === 0) coinBurst(burstEl, 4);
+        await sleep(36);
+      }
+      accumulatedBalance = targetBalance;
+
+      // Wrap around if it gets high
+      if (accumulatedBalance > 0.10) {
+        accumulatedBalance = 0;
+      }
+
+      // 7. Pause to let the user read
+      await sleep(3000);
+
+      // 8. Clean fade out before next scenario
+      valEl.classList.remove("tick");
+      if (userEl) userEl.style.opacity = "0";
+      aiEl.style.opacity = "0";
+      if (sponsorEl) sponsorEl.classList.remove("show");
+      await sleep(600);
+
+      scenarioIdx++;
     }
   }
+
+  // Launch demo loop immediately
   if (typeEl) {
-    if (reduce) {
-      typeEl.textContent = PROMPT; aiTxt.textContent = ANSWER; sponsorEl.classList.add("show");
-      valEl.textContent = money(RATE * PROMPTS);
-    } else {
-      const demoObs = "IntersectionObserver" in window
-        ? new IntersectionObserver((en) => { if (en[0].isIntersecting) { demoObs.disconnect(); demoLoop(); } }, { threshold: 0.3 })
-        : null;
-      if (demoObs) demoObs.observe($(".demo")); else demoLoop();
-    }
+    demoLoop();
   }
 
   /* coin burst on CTA click (navigation still happens) */
@@ -271,34 +348,40 @@ async function checkNavAuth() {
     });
   });
 
-  /* desktop-only: tilt, glow-follow, magnetic buttons */
-  if (fine && !reduce) {
-    $$(".tilt, .tilt-soft").forEach((el) => {
-      const max = el.classList.contains("tilt") ? 7 : 4;
-      el.addEventListener("pointermove", (e) => {
-        const r = el.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-        el.style.setProperty("--mx", (x * 100).toFixed(1) + "%");
-        el.style.setProperty("--my", (y * 100).toFixed(1) + "%");
-        const rx = ((0.5 - y) * max).toFixed(2), ry = ((x - 0.5) * max).toFixed(2);
-        el.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  /* card tilt: desktop only */
+  if (fine) {
+    $$(".tilt").forEach((card) => {
+      card.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(800px) rotateX(${(-py * 8).toFixed(2)}deg) rotateY(${(px * 8).toFixed(2)}deg) translateY(-2px)`;
       });
-      el.addEventListener("pointerleave", () => { el.style.transform = ""; });
-    });
-    $$(".glow").forEach((el) => {
-      el.addEventListener("pointermove", (e) => {
-        const r = el.getBoundingClientRect();
-        el.style.setProperty("--mx", ((e.clientX - r.left)).toFixed(0) + "px");
-        el.style.setProperty("--my", ((e.clientY - r.top)).toFixed(0) + "px");
+      card.addEventListener("pointerleave", () => {
+        card.style.transform = "";
       });
     });
+
+    /* glow cursor follow */
+    $$(".glow").forEach((card) => {
+      card.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        card.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+    });
+
+    /* magnetic buttons */
     $$(".magnetic").forEach((btn) => {
       btn.addEventListener("pointermove", (e) => {
         const r = btn.getBoundingClientRect();
-        btn.style.setProperty("--mgx", ((e.clientX - (r.left + r.width / 2)) * 0.18).toFixed(1) + "px");
-        btn.style.setProperty("--mgy", ((e.clientY - (r.top + r.height / 2)) * 0.25).toFixed(1) + "px");
+        const x = (e.clientX - (r.left + r.width / 2)) * 0.22;
+        const y = (e.clientY - (r.top + r.height / 2)) * 0.22;
+        btn.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       });
-      btn.addEventListener("pointerleave", () => { btn.style.setProperty("--mgx", "0px"); btn.style.setProperty("--mgy", "0px"); });
+      btn.addEventListener("pointerleave", () => {
+        btn.style.transform = "";
+      });
     });
   }
 })();
