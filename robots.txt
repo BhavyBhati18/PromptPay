@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Allow: /favicon.ico
+Allow: /favicon*.png
+Allow: /logo-q-coin.svg
+Allow: /advertise
+Allow: /privacy
+Allow: /terms
+
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /admin_database
+Disallow: /advertiser_portal
+
+Sitemap: https://querypay.vercel.app/sitemap.xml

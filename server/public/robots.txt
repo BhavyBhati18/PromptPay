@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+Allow: /favicon.ico
+Allow: /favicon*.png
+Allow: /logo-q-coin.svg
 Allow: /advertise
 Allow: /privacy
 Allow: /terms
