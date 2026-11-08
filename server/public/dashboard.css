@@ -1,22 +1,31 @@
+/* ==========================================================================
+   QueryPay Theme v2 — Dashboard Stylesheet
+   Palette: Ink #07080C, Surfaces #0C0E15, Lime #C4F55A, Violet #8B7CFF, Peach #FFB86B
+   ========================================================================== */
+
 :root {
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #0f1629;
-  --bg-card: #151d36;
-  --bg-hover: #1c2747;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-focus: #38bdf8;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-cyan: #38bdf8;
-  --accent-green: #10b981;
-  --accent-green-hover: #059669;
-  --accent-danger: #ef4444;
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --bg-primary: #07080C;
+  --bg-secondary: #0C0E15;
+  --bg-card: rgba(255, 255, 255, 0.035);
+  --bg-hover: rgba(255, 255, 255, 0.065);
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-focus: #C4F55A;
+  --text-primary: #F3F4F8;
+  --text-secondary: #A3AABB;
+  --text-muted: #64748B;
+  --accent-cyan: #C4F55A;
+  --accent-green: #C4F55A;
+  --accent-green-hover: #D9FF8A;
+  --accent-danger: #EF4444;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 * {
@@ -26,20 +35,25 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   line-height: 1.5;
+  background-image:
+    radial-gradient(900px 620px at 12% -8%, rgba(139, 124, 255, 0.18), transparent 60%),
+    radial-gradient(760px 520px at 96% 4%, rgba(196, 245, 90, 0.12), transparent 62%);
+  background-attachment: fixed;
 }
 
 /* ── Top Navbar ──────────────────────────────────────────────────────────── */
 
 .dashboard-nav {
-  background: rgba(15, 22, 41, 0.85);
-  background: #0d121d;
+  background: rgba(7, 8, 12, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -58,22 +72,27 @@ body {
 .brand-link {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.65rem;
   text-decoration: none;
   color: var(--text-primary);
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.15rem;
 }
 
-.brand-icon {
-  font-size: 1.35rem;
+.brand-link img {
+  width: 32px;
+  height: 32px;
+  display: block;
 }
 
 .brand-badge {
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   text-transform: uppercase;
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--accent-cyan);
+  background: rgba(196, 245, 90, 0.12);
+  color: var(--accent-green);
+  border: 1px solid rgba(196, 245, 90, 0.25);
   padding: 0.2rem 0.5rem;
   border-radius: 9999px;
   font-weight: 700;
@@ -96,12 +115,13 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #38bdf8, #10b981);
+  background: linear-gradient(135deg, #8B7CFF, #C4F55A);
+  color: #0B1200;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.95rem;
 }
 
@@ -159,8 +179,9 @@ body {
 }
 
 .welcome-header h1 {
-  font-size: 1.75rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -175,10 +196,10 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.85rem;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(196, 245, 90, 0.1);
+  border: 1px solid rgba(196, 245, 90, 0.25);
   border-radius: 9999px;
-  color: #34d399;
+  color: var(--accent-green);
   font-size: 0.825rem;
   font-weight: 600;
 }
@@ -188,7 +209,7 @@ body {
   height: 8px;
   border-radius: 50%;
   background: var(--accent-green);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 10px var(--accent-green);
 }
 
 /* ── Stats Grid ──────────────────────────────────────────────────────────── */
@@ -201,7 +222,9 @@ body {
 }
 
 .stat-card {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 1.5rem;
@@ -212,7 +235,7 @@ body {
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, 0.3);
+  border-color: rgba(196, 245, 90, 0.35);
 }
 
 .stat-card::before {
@@ -221,17 +244,15 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
-  opacity: 0.7;
+  height: 2px;
+  background: linear-gradient(90deg, #8B7CFF, #C4F55A);
+  opacity: 0.8;
 }
 
 .stat-label {
   font-size: 0.825rem;
   font-weight: 600;
   color: var(--text-secondary);
-  text-transform: none;
-  letter-spacing: normal;
   margin-bottom: 0.5rem;
   display: flex;
   justify-content: space-between;
@@ -239,8 +260,9 @@ body {
 }
 
 .stat-value {
-  font-size: 2rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.02em;
 }
@@ -258,12 +280,14 @@ body {
 /* ── Withdrawal Panel ────────────────────────────────────────────────────── */
 
 .withdrawal-card {
-  background: linear-gradient(135deg, rgba(21, 29, 54, 0.9), rgba(15, 22, 41, 0.9));
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(196, 245, 90, 0.25);
   border-radius: var(--radius-lg);
   padding: 2rem;
   margin-bottom: 2.5rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 0 40px -15px rgba(196, 245, 90, 0.15);
 }
 
 .withdrawal-inner {
@@ -280,7 +304,8 @@ body {
 }
 
 .withdrawal-info h3 {
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
   font-weight: 700;
   margin-bottom: 0.35rem;
 }
@@ -299,6 +324,7 @@ body {
 .progress-labels {
   display: flex;
   justify-content: space-between;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 0.4rem;
@@ -316,28 +342,30 @@ body {
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #38bdf8, #10b981);
+  background: linear-gradient(90deg, #8B7CFF, #C4F55A);
   border-radius: 9999px;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-withdraw {
-  background: linear-gradient(135deg, var(--accent-green), var(--accent-green-hover));
-  color: #fff;
+  background: var(--accent-green);
+  color: #0B1200;
   border: none;
+  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
   padding: 0.9rem 2rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 0 24px rgba(196, 245, 90, 0.35);
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .btn-withdraw:hover:not(:disabled) {
+  background: var(--accent-green-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 32px rgba(196, 245, 90, 0.5);
 }
 
 .btn-withdraw:disabled {
@@ -362,7 +390,9 @@ body {
 }
 
 .card-panel {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 1.5rem;
@@ -378,14 +408,17 @@ body {
 }
 
 .card-panel-header h3 {
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
 .badge-counter {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   padding: 0.2rem 0.6rem;
   background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
   border-radius: 9999px;
   color: var(--text-secondary);
   font-weight: 600;
@@ -418,6 +451,7 @@ body {
   padding: 0.85rem 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: var(--text-secondary);
+  font-family: var(--font-mono);
 }
 
 .data-table tr:hover td {
@@ -430,6 +464,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-body) !important;
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -444,13 +479,13 @@ body {
 }
 
 .platform-pill.chatgpt {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
+  background: rgba(196, 245, 90, 0.15);
+  color: #C4F55A;
 }
 
 .platform-pill.gemini {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
+  background: rgba(139, 124, 255, 0.15);
+  color: #8B7CFF;
 }
 
 .reward-cell {
@@ -467,13 +502,13 @@ body {
 }
 
 .status-badge.processing {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
+  background: rgba(255, 184, 107, 0.15);
+  color: #FFB86B;
 }
 
 .status-badge.completed {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
+  background: rgba(196, 245, 90, 0.15);
+  color: #C4F55A;
 }
 
 .status-badge.rejected {
@@ -522,6 +557,7 @@ body {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
+  font-family: var(--font-mono);
 }
 
 /* ── Modal ───────────────────────────────────────────────────────────────── */
@@ -529,8 +565,9 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  background: #0d121d;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 999;
   display: none;
   align-items: center;
@@ -543,7 +580,7 @@ body {
 }
 
 .modal-box {
-  background: var(--bg-secondary);
+  background: #0C0E15;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   width: 100%;
@@ -567,6 +604,7 @@ body {
 }
 
 .modal-header h2 {
+  font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 700;
 }
@@ -600,7 +638,7 @@ body {
 .modal-form select {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: var(--bg-primary);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -612,6 +650,7 @@ body {
 .modal-form select:focus {
   outline: none;
   border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(196, 245, 90, 0.2);
 }
 
 .modal-notice {
@@ -623,16 +662,19 @@ body {
 
 .btn-confirm-withdraw {
   width: 100%;
-  background: linear-gradient(135deg, var(--accent-green), var(--accent-green-hover));
-  color: #fff;
+  background: var(--accent-green);
+  color: #0B1200;
   border: none;
   padding: 0.85rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
+  box-shadow: 0 0 20px rgba(196, 245, 90, 0.3);
 }
 
 .btn-confirm-withdraw:hover {
+  background: var(--accent-green-hover);
   transform: translateY(-1px);
 }

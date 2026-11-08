@@ -6,6 +6,12 @@
   <title>QueryPay Admin Database Panel — Internal Use Only</title>
   <link rel="canonical" href="https://querypay.vercel.app/admin_database">
   <meta name="description" content="Internal admin panel for managing QueryPay users, campaigns, sessions, and advertiser inquiries.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
     .admin-container {
@@ -102,14 +108,27 @@
     }
     .action-btn:hover { background: rgba(255, 255, 255, 0.12); }
   </style>
-  <link rel="icon" type="image/jpeg" href="/querypay_logo.jpg">
+  <link rel="icon" type="image/svg+xml" href="logo-q-coin.svg">
+  <style id="admin-theme-v2">
+    body { background-color: #07080C !important; color: #F3F4F8 !important; font-family: 'Inter', sans-serif !important; }
+    .navbar { background: rgba(7, 8, 12, 0.85) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important; backdrop-filter: blur(12px) !important; }
+    .admin-title h1 { font-family: 'Space Grotesk', sans-serif !important; color: #F3F4F8 !important; }
+    .tab-btn.active { background: rgba(196, 245, 90, 0.12) !important; color: #C4F55A !important; }
+    .db-table-wrap { background: #0C0E15 !important; border: 1px solid rgba(255, 255, 255, 0.09) !important; border-radius: 14px !important; }
+    table.db-table th { background: rgba(255, 255, 255, 0.03) !important; color: #A3AABB !important; border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important; }
+    table.db-table td { border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important; color: #F3F4F8 !important; font-family: 'JetBrains Mono', monospace !important; }
+    .badge-green { background: rgba(196, 245, 90, 0.15) !important; color: #C4F55A !important; }
+    .badge-blue { background: rgba(139, 124, 255, 0.15) !important; color: #8B7CFF !important; }
+    .badge-amber { background: rgba(255, 184, 107, 0.15) !important; color: #FFB86B !important; }
+    .btn-primary-sm { background: #C4F55A !important; color: #0B1200 !important; font-weight: 700 !important; }
+  </style>
 </head>
 <body>
 
   <header class="navbar">
     <div class="container nav-container">
       <a href="/" class="brand">
-        <img src="/querypay_logo.jpg" alt="QueryPay Logo" class="brand-logo-img" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;" width="32" height="32">
+        <img src="logo-q-coin.svg" alt="QueryPay Logo" class="brand-logo-img" width="32" height="32">
         <span>QueryPay</span>
       </a>
       <div class="nav-actions">

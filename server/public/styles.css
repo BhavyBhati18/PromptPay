@@ -3,24 +3,24 @@
    ========================================================================== */
 
 :root {
-  --bg-page: #05070a;
-  --bg-surface: #0c1017;
-  --bg-surface-elevated: #121824;
-  --bg-card: #0d121c;
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  --bg-page: #07080C;
+  --bg-surface: #0C0E15;
+  --bg-surface-elevated: #141722;
+  --bg-card: rgba(255, 255, 255, 0.035);
+  --border-subtle: rgba(255, 255, 255, 0.09);
   --border-hover: rgba(255, 255, 255, 0.18);
   --border-accent: rgba(56, 189, 248, 0.35);
 
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
+  --text-main: #F3F4F8;
+  --text-muted: #A3AABB;
   --text-dim: #64748b;
 
-  --accent-cyan: #38bdf8;
-  --accent-emerald: #10b981;
-  --accent-blue: #2563eb;
+  --accent-cyan: #C4F55A;
+  --accent-emerald: #C4F55A;
+  --accent-blue: #8B7CFF;
 
-  --font-heading: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
 
   --radius-sm: 8px;
   --radius-md: 14px;

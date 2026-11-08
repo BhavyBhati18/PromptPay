@@ -8,7 +8,7 @@
   <meta name="description" content="Reach developers, creators, and decision-makers using ChatGPT and Gemini daily. Place contextual sponsored cards above every AI response with QueryPay.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -27,17 +27,17 @@
     }
 
     :root {
-      --bg: #080c14;
-      --bg-card: rgba(255,255,255,0.04);
+      --bg: #07080C;
+      --bg-card: rgba(255, 255, 255, 0.035);
       --bg-input: rgba(255,255,255,0.05);
-      --border: rgba(255,255,255,0.08);
-      --border-focus: rgba(56,189,248,0.6);
-      --accent: #38bdf8;
-      --accent-glow: rgba(56,189,248,0.2);
-      --accent-purple: #a78bfa;
-      --accent-green: #34d399;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.09);
+      --border-focus: #C4F55A;
+      --accent: #C4F55A;
+      --accent-glow: rgba(196, 245, 90, 0.3);
+      --accent-purple: #8B7CFF;
+      --accent-green: #C4F55A;
+      --text: #F3F4F8;
+      --text-muted: #A3AABB;
       --text-dim: #64748b;
       --radius: 12px;
       --radius-lg: 20px;
@@ -46,7 +46,7 @@
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -80,12 +80,7 @@
       justify-content: space-between;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      text-decoration: none;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    .brand { font-family: 'Space Grotesk', sans-serif;
       font-weight: 800;
       font-size: 1.2rem;
       color: #fff;
@@ -117,9 +112,7 @@
     }
     .nav-link:hover { color: #fff; }
 
-    .btn-nav {
-      background: var(--accent);
-      color: #000;
+    .btn-nav { background: #C4F55A; color: #0B1200; font-weight: 700; font-weight: 700;
       font-weight: 700;
       font-size: 0.85rem;
       padding: 0.5rem 1.2rem;
@@ -171,8 +164,8 @@
       50% { box-shadow: 0 0 0 6px rgba(56,189,248,0); }
     }
 
-    .hero h1 {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    .hero h1 { font-family: 'Space Grotesk', sans-serif;  font-family: 'Space Grotesk', sans-serif; 
+      font-family: 'Inter', -apple-system, sans-serif;
       font-size: clamp(2.2rem, 5vw, 3.5rem);
       font-weight: 800;
       letter-spacing: -0.04em;
@@ -206,7 +199,7 @@
     }
 
     .stat-value {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       font-size: 2rem;
       font-weight: 800;
       color: #fff;
@@ -238,7 +231,7 @@
 
     /* ── Left panel — benefits ── */
     .benefits-panel h2 {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
@@ -359,7 +352,7 @@
     }
 
     .form-header h2 {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       font-size: 1.4rem;
       font-weight: 700;
       margin-bottom: 0.4rem;
@@ -519,7 +512,7 @@
       border: none;
       border-radius: 12px;
       color: #000;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
@@ -587,24 +580,24 @@
 
     .footer a { color: var(--accent); text-decoration: none; }
   </style>
-  <link rel="icon" type="image/jpeg" href="/querypay_logo.jpg">
+  <link rel="icon" type="image/svg+xml" href="logo-q-coin.svg">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Advertise on QueryPay — Reach AI Power Users">
   <meta property="og:description" content="Place contextual sponsored cards above ChatGPT and Gemini responses. Reach high-intent developers and creators.">
   <meta property="og:url" content="https://querypay.vercel.app/advertise">
-  <meta property="og:image" content="https://querypay.vercel.app/querypay_logo.jpg">
+  <meta property="og:image" content="https://querypay.vercel.app/logo-q-coin.svg">
   <meta property="og:site_name" content="QueryPay">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Advertise on QueryPay — Reach AI Power Users">
   <meta name="twitter:description" content="Place contextual sponsored cards above ChatGPT and Gemini responses. Reach high-intent developers and creators.">
-  <meta name="twitter:image" content="https://querypay.vercel.app/querypay_logo.jpg">
+  <meta name="twitter:image" content="https://querypay.vercel.app/logo-q-coin.svg">
 </head>
 <body>
 
   <!-- Navbar -->
   <nav class="navbar">
     <a href="/" class="brand">
-      <img src="/querypay_logo.jpg" alt="QueryPay Logo" class="brand-logo-img" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;" width="32" height="32">
+      <img src="logo-q-coin.svg" alt="QueryPay Logo" class="brand-logo-img" width="32" height="32">
       <span>QueryPay</span>
     </a>
     <div class="nav-right">

@@ -8,7 +8,9 @@
 }
 
 body {
-  background-color: #090d16;
+  background-color: #07080C;
+  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #f8fafc;
   min-height: 100vh;
 }
@@ -20,8 +22,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 260px;
-  background: #0f172a;
+  background: #0C0E15;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
@@ -40,7 +41,7 @@ body {
 .brand-logo {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  background: linear-gradient(135deg, #6366f1, #D9FF8A);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -89,8 +90,8 @@ body {
 }
 
 .nav-item.active {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
+  background: rgba(196, 245, 90, 0.15);
+  color: #C4F55A; font-weight: 700; font-weight: 700;
   border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
@@ -150,8 +151,8 @@ body {
 
 /* Buttons */
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  color: #ffffff;
+  background: #C4F55A;
+  color: #0B1200; font-weight: 700; font-weight: 700;
   border: none;
   padding: 10px 18px;
   border-radius: 10px;
@@ -587,7 +588,7 @@ body {
 }
 
 .mock-chat-bubble.user {
-  background: #2563eb;
+  background: #C4F55A;
   color: #ffffff;
   align-self: flex-end;
 }
