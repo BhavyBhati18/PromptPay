@@ -164,17 +164,19 @@
       50% { box-shadow: 0 0 0 6px rgba(56,189,248,0); }
     }
 
-    .hero h1 { font-family: 'Space Grotesk', sans-serif;  font-family: 'Space Grotesk', sans-serif; 
-      font-family: 'Inter', -apple-system, sans-serif;
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
+    .hero h1 {
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: clamp(2.5rem, 5.5vw, 4rem);
       font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
+      letter-spacing: -0.035em;
+      line-height: 1.12;
       margin-bottom: 1.25rem;
-      background: linear-gradient(135deg, #fff 40%, var(--accent) 100%);
-      
-      
-      
+      color: #F3F4F8;
+    }
+
+    .hero h1 .hl {
+      color: var(--accent);
+      display: inline-block;
     }
 
     .hero p {
@@ -199,7 +201,7 @@
     }
 
     .stat-value {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 2rem;
       font-weight: 800;
       color: #fff;
@@ -231,7 +233,7 @@
 
     /* ── Left panel — benefits ── */
     .benefits-panel h2 {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
@@ -352,7 +354,7 @@
     }
 
     .form-header h2 {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 1.4rem;
       font-weight: 700;
       margin-bottom: 0.4rem;
@@ -618,7 +620,7 @@
         <div class="pulse"></div>
         Now Accepting Advertisers
       </div>
-      <h1>Reach Users While<br>They Think</h1>
+      <h1>Reach Users While<br><span class="hl">They Think</span></h1>
       <p>Your ad appears above AI responses on ChatGPT and Gemini — exactly when users are searching for what you offer.</p>
     </div>
 
